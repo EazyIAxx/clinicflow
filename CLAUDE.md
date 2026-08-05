@@ -1,8 +1,8 @@
+@AGENTS.md
+
 # CLAUDE.md — ClinicFlow
 
-> Este arquivo é o briefing de referência para trabalhar neste projeto. PRD completo em [docs/PRD.md](docs/PRD.md).
->
-> **Nota:** o projeto ainda não foi inicializado (diretório vazio). A stack, estrutura de pastas e convenções abaixo são a arquitetura-alvo definida no PRD, não código já existente.
+> Este arquivo é o briefing de referência para trabalhar neste projeto. PRD completo em [docs/PRD.md](docs/PRD.md) e roadmap de execução em [docs/PLAN.md](docs/PLAN.md).
 
 ## Sobre o projeto
 
@@ -56,12 +56,12 @@ docs/
 
 ## Personas (para quem cada tela é feita)
 
-| Persona | Necessidade principal |
-|---|---|
-| Recepcionista/Secretária | Gerenciar agenda, cadastrar pacientes, confirmar consultas |
-| Profissional de saúde | Acessar própria agenda, prontuários e arquivos dos pacientes atendidos |
-| Gestor/Admin | Configurar clínica, gerenciar estoque, usuários, permissões e relatórios |
-| Paciente | Interage só via WhatsApp com o agente de IA (agendar, remarcar, tirar dúvidas) |
+| Persona                  | Necessidade principal                                                          |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| Recepcionista/Secretária | Gerenciar agenda, cadastrar pacientes, confirmar consultas                     |
+| Profissional de saúde    | Acessar própria agenda, prontuários e arquivos dos pacientes atendidos         |
+| Gestor/Admin             | Configurar clínica, gerenciar estoque, usuários, permissões e relatórios       |
+| Paciente                 | Interage só via WhatsApp com o agente de IA (agendar, remarcar, tirar dúvidas) |
 
 ## Linguagem visual
 
