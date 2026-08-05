@@ -15,13 +15,13 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `chore/setup-inicial`
 - **Objetivo**: inicializar o projeto Next.js com a stack definida no CLAUDE.md e deixar o deploy contínuo funcionando desde o primeiro commit.
 - **Entregas**:
-  - [ ] Inicializar repositório Git
-  - [ ] Criar projeto Next.js (App Router + TypeScript)
-  - [ ] Configurar Tailwind CSS + shadcn/ui (tema base neutro)
-  - [ ] Criar estrutura de pastas conforme CLAUDE.md (`app/`, `components/`, `lib/`, `prisma/`, `docs/`)
-  - [ ] Configurar ESLint + Prettier
-  - [ ] Configurar deploy contínuo (Vercel) com página placeholder publicada
-- **Commit final**: `chore: setup inicial do projeto (Next.js, Tailwind, shadcn/ui, estrutura de pastas)`
+  - [x] Inicializar repositório Git
+  - [x] Criar projeto Next.js (App Router + TypeScript)
+  - [x] Configurar Tailwind CSS + shadcn/ui (tema base neutro)
+  - [x] Criar estrutura de pastas conforme CLAUDE.md (`app/`, `components/`, `lib/`, `prisma/`, `docs/`)
+  - [x] Configurar ESLint + Prettier
+  - [ ] Configurar deploy contínuo (Vercel) com página placeholder publicada — CLI pronta via `npx vercel`; falta rodar `vercel login` (login manual, exige navegador) e depois `vercel` para publicar
+- **Commit final**: `chore: setup inicial do projeto (Next.js, Tailwind, shadcn/ui, estrutura de pastas)` ✅ (branch `chore/setup-inicial`, mergeada em `main`)
 
 ---
 
