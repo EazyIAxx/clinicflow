@@ -97,6 +97,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Rodar migrations iniciais
   - [ ] Implementar login/registro real com Supabase Auth
   - [ ] Implementar RLS e checagem de permissões por perfil (recepcionista, profissional, gestor/admin)
+  - [ ] Configurar Resend e enviar e-mails de autenticação (confirmação de cadastro, redefinição de senha, convite de usuário)
 - **Commit final**: `feat(backend): banco de dados, autenticação e permissões reais`
 
 ### M7. Backend de agendamento
@@ -149,6 +150,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Entregas**:
   - [ ] Sistema de notificações in-app (lembretes de consulta, alertas de estoque)
   - [ ] Job/cron de lembretes automáticos
+  - [ ] E-mails de confirmação/lembrete de consulta via Resend
   - [ ] Chat/mensagens internas entre membros da equipe
 - **Commit final**: `feat: notificações e chat interno`
 

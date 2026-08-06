@@ -14,6 +14,7 @@ ClinicFlow é um sistema de gestão para clínicas que centraliza agendamento de
 - **UI**: Tailwind CSS + shadcn/ui
 - **Backend/DB**: Supabase (Postgres, Auth, Storage) + Prisma como ORM
 - **Runtime**: Node.js
+- **E-mail transacional**: Resend — e-mails de autenticação (confirmação de cadastro, redefinição de senha, convite de usuário) e notificações/lembretes de consulta por e-mail
 - **Canal de atendimento**: WhatsApp Business Platform (API oficial do Meta) para envio/recebimento de mensagens
 - **Agente de IA**: Claude API, responsável pelo atendimento automatizado no WhatsApp (última etapa do projeto)
 
@@ -35,6 +36,7 @@ components/
   shared/              # componentes reutilizáveis entre módulos
 lib/
   supabase/            # clients e helpers do Supabase
+  email/               # cliente Resend e templates de e-mail transacional
   whatsapp/            # integração com WhatsApp Business API
   ai-agent/            # agente de IA (Claude API)
   utils/
