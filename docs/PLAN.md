@@ -32,12 +32,12 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-auth-shell`
 - **Objetivo**: construir as telas de entrada no sistema e o layout de navegação do dashboard, sem lógica de autenticação real.
 - **Entregas**:
-  - [ ] Tela de login (UI)
-  - [ ] Tela de registro (UI)
-  - [ ] Layout do dashboard: sidebar + topbar (estilo Linear)
-  - [ ] Navegação entre módulos (agenda, estoque, pacientes, prontuários, relatórios, configurações) com dados mockados
-  - [ ] Componentes base shadcn/ui configurados (button, input, card, dialog, table, etc.)
-- **Commit final**: `feat(ui): telas de login/registro e shell de navegação do dashboard`
+  - [x] Tela de login (UI)
+  - [x] Tela de registro (UI)
+  - [x] Layout do dashboard: sidebar + topbar (estilo Linear)
+  - [x] Navegação entre módulos (agenda, estoque, pacientes, prontuários, relatórios, configurações) com dados mockados
+  - [x] Componentes base shadcn/ui configurados (button, input, card, dialog, table, etc.)
+- **Commit final**: `feat(ui): telas de login/registro e shell de navegação do dashboard` ✅ (branch `feature/ui-auth-shell`, mergeada em `main`)
 
 ### M2. UI de agendamento
 
