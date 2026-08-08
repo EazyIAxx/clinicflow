@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
 
-import { ModulePlaceholder } from "@/components/shared/module-placeholder";
+import { EstoqueView } from "@/components/estoque/estoque-view";
+import { getMockMovements, getMockStockItems } from "@/lib/mock-estoque";
 
 export const metadata: Metadata = {
   title: "Estoque — ClinicFlow",
 };
 
+// Os indicadores de validade precisam refletir a data real de cada acesso, não a do build.
+export const dynamic = "force-dynamic";
+
 export default function EstoquePage() {
-  return (
-    <ModulePlaceholder
-      title="Estoque"
-      description="Controle de materiais e medicamentos: entradas, saídas, validade e alerta de estoque mínimo."
-      milestone="M3"
-      stats={[
-        { label: "Itens cadastrados", value: "128" },
-        { label: "Abaixo do mínimo", value: "6" },
-        { label: "Vencendo em 30 dias", value: "4" },
-      ]}
-    />
-  );
+  const today = new Date();
+  const items = getMockStockItems(today);
+  const movements = getMockMovements(today);
+
+  return <EstoqueView initialItems={items} initialMovements={movements} referenceDate={today} />;
 }
