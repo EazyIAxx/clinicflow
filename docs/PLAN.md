@@ -44,11 +44,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-agenda`
 - **Objetivo**: interface completa do módulo de agenda com dados mockados, seguindo a referência visual Doctoralia/iClinic.
 - **Entregas**:
-  - [ ] Calendário por profissional/sala (visualização dia/semana)
-  - [ ] Modal/formulário de novo agendamento
-  - [ ] Estados visuais de confirmação, remarcação, cancelamento e bloqueio de horário
-  - [ ] Dados mockados de profissionais e consultas
-- **Commit final**: `feat(ui): interface do módulo de agendamento`
+  - [x] Calendário por profissional/sala (visualização dia/semana)
+  - [x] Modal/formulário de novo agendamento
+  - [x] Estados visuais de confirmação, remarcação, cancelamento e bloqueio de horário
+  - [x] Dados mockados de profissionais e consultas
+- **Commit final**: `feat(ui): interface do módulo de agendamento` ✅ (branch `feature/ui-agenda`, mergeada em `main`)
 
 ### M3. UI de estoque
 
