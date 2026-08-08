@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
 
-import { ModulePlaceholder } from "@/components/shared/module-placeholder";
+import { AgendaView } from "@/components/agenda/agenda-view";
+import { getMockAppointments, professionals } from "@/lib/mock-agenda";
 
 export const metadata: Metadata = {
   title: "Agenda — ClinicFlow",
 };
 
+// "Hoje" precisa refletir a data real de cada acesso, não a data do build.
+export const dynamic = "force-dynamic";
+
 export default function AgendaPage() {
+  const today = new Date();
+  const appointments = getMockAppointments(today);
+
   return (
-    <ModulePlaceholder
-      title="Agenda"
-      description="Calendário por profissional/sala, confirmação, remarcação e cancelamento de consultas."
-      milestone="M2"
-      stats={[
-        { label: "Consultas hoje", value: "8" },
-        { label: "Aguardando confirmação", value: "3" },
-        { label: "Profissionais ativos", value: "5" },
-      ]}
-    />
+    <AgendaView professionals={professionals} initialAppointments={appointments} today={today} />
   );
 }
