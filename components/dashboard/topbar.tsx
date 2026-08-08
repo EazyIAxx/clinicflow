@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { dashboardHome, navItems } from "@/lib/nav-items";
@@ -15,7 +16,8 @@ export function DashboardTopbar() {
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger />
       <Separator orientation="vertical" className="h-5" />
-      <h2 className="text-sm font-medium">{title}</h2>
+      <h2 className="flex-1 text-sm font-medium">{title}</h2>
+      <ThemeToggle />
     </header>
   );
 }
