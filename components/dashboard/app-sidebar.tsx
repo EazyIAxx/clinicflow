@@ -25,11 +25,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { mockUser, navGroups } from "@/lib/nav-items";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  function closeOnMobile() {
+    if (isMobile) setOpenMobile(false);
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -50,6 +56,7 @@ export function AppSidebar() {
                         render={<Link href={item.href} />}
                         isActive={isActive}
                         tooltip={item.title}
+                        onClick={closeOnMobile}
                       >
                         <item.icon />
                         <span>{item.title}</span>
@@ -83,12 +90,12 @@ export function AppSidebar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/configuracoes" />}>
+                <DropdownMenuItem render={<Link href="/configuracoes" />} onClick={closeOnMobile}>
                   <Settings />
                   Configurações
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/login" />}>
+                <DropdownMenuItem render={<Link href="/login" />} onClick={closeOnMobile}>
                   <LogOut />
                   Sair
                 </DropdownMenuItem>

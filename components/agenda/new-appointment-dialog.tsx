@@ -156,7 +156,11 @@ export function NewAppointmentDialog({
                 onValueChange={(value) => setProfessionalId(value as string)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {(value: string) =>
+                      professionals.find((professional) => professional.id === value)?.name
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {professionals.map((professional) => (
@@ -238,7 +242,11 @@ export function NewAppointmentDialog({
                 onValueChange={(value) => setDuration(Number(value) as 30 | 60 | 90)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {(value: string) =>
+                      durationOptions.find((option) => option.value === value)?.label
+                    }
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {durationOptions.map((option) => (

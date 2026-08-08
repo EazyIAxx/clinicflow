@@ -48,7 +48,13 @@ export function AgendaToolbar({
           onValueChange={(value) => onProfessionalChange(value as string)}
         >
           <SelectTrigger className="w-56">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) =>
+                value === "todos"
+                  ? "Todos os profissionais"
+                  : professionals.find((professional) => professional.id === value)?.name
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os profissionais</SelectItem>
