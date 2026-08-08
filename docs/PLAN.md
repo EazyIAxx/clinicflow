@@ -55,11 +55,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-estoque`
 - **Objetivo**: interface completa do módulo de estoque com dados mockados.
 - **Entregas**:
-  - [ ] Listagem de itens (materiais/medicamentos) com busca e filtros
-  - [ ] Formulário de cadastro/edição de item
-  - [ ] Tela de entrada/saída de estoque
-  - [ ] Indicadores visuais de estoque mínimo e validade próxima
-- **Commit final**: `feat(ui): interface do módulo de estoque`
+  - [x] Listagem de itens (materiais/medicamentos) com busca e filtros
+  - [x] Formulário de cadastro/edição de item
+  - [x] Tela de entrada/saída de estoque
+  - [x] Indicadores visuais de estoque mínimo e validade próxima
+- **Commit final**: `feat(ui): interface do módulo de estoque` ✅ (branch `feature/ui-estoque`, mergeada em `main`)
 
 ### M4. UI de pacientes + prontuário/arquivos
 
