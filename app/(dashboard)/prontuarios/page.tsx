@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 
-import { ModulePlaceholder } from "@/components/shared/module-placeholder";
+import { ProntuariosView } from "@/components/prontuarios/prontuarios-view";
+import { getMockDocuments } from "@/lib/mock-documentos";
+import { getMockPatients } from "@/lib/mock-pacientes";
 
 export const metadata: Metadata = {
   title: "Prontuários — ClinicFlow",
 };
 
+// "Adicionados esta semana" precisa refletir a data real de cada acesso, não
+// a do build.
+export const dynamic = "force-dynamic";
+
 export default function ProntuariosPage() {
-  return (
-    <ModulePlaceholder
-      title="Prontuários"
-      description="Upload e organização de exames, receitas e documentos por paciente."
-      milestone="M4"
-      stats={[
-        { label: "Documentos armazenados", value: "876" },
-        { label: "Adicionados esta semana", value: "27" },
-      ]}
-    />
-  );
+  const today = new Date();
+  const documents = getMockDocuments(today);
+  const patients = getMockPatients(today);
+
+  return <ProntuariosView initialDocuments={documents} patients={patients} referenceDate={today} />;
 }

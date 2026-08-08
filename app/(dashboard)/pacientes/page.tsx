@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 
-import { ModulePlaceholder } from "@/components/shared/module-placeholder";
+import { PacientesView } from "@/components/pacientes/pacientes-view";
+import { getMockPatients } from "@/lib/mock-pacientes";
 
 export const metadata: Metadata = {
   title: "Pacientes — ClinicFlow",
 };
 
+// "Novos este mês" e "última visita" precisam refletir a data real de cada
+// acesso, não a do build.
+export const dynamic = "force-dynamic";
+
 export default function PacientesPage() {
-  return (
-    <ModulePlaceholder
-      title="Pacientes"
-      description="Cadastro, busca e histórico dos pacientes atendidos pela clínica."
-      milestone="M4"
-      stats={[
-        { label: "Pacientes cadastrados", value: "342" },
-        { label: "Novos este mês", value: "19" },
-      ]}
-    />
-  );
+  const today = new Date();
+  const patients = getMockPatients(today);
+
+  return <PacientesView initialPatients={patients} referenceDate={today} />;
 }
