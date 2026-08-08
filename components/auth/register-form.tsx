@@ -56,9 +56,9 @@ export function RegisterForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="justify-center text-center text-sm text-muted-foreground">
+      <CardFooter className="text-muted-foreground justify-center text-center text-sm">
         Já tem uma conta?{" "}
-        <Link href="/login" className="font-medium text-foreground hover:underline">
+        <Link href="/login" className="text-foreground font-medium hover:underline">
           Entrar
         </Link>
       </CardFooter>

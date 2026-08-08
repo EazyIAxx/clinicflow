@@ -22,7 +22,7 @@ export function ModulePlaceholder({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
         </div>
         <Badge variant="outline">Chega no {milestone}</Badge>
       </div>
@@ -42,10 +42,10 @@ export function ModulePlaceholder({
 
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center gap-1 py-16 text-center">
-          <p className="text-sm font-medium text-foreground">Em construção</p>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            A interface completa deste módulo será implementada no milestone {milestone}, conforme
-            o docs/PLAN.md.
+          <p className="text-foreground text-sm font-medium">Em construção</p>
+          <p className="text-muted-foreground max-w-sm text-sm">
+            A interface completa deste módulo será implementada no milestone {milestone}, conforme o
+            docs/PLAN.md.
           </p>
         </CardContent>
       </Card>

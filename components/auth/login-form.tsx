@@ -42,7 +42,7 @@ export function LoginForm() {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Senha</Label>
-              <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">
+              <Link href="#" className="text-muted-foreground hover:text-foreground text-xs">
                 Esqueceu a senha?
               </Link>
             </div>
@@ -53,9 +53,9 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="justify-center text-center text-sm text-muted-foreground">
+      <CardFooter className="text-muted-foreground justify-center text-center text-sm">
         Não tem uma conta?{" "}
-        <Link href="/register" className="font-medium text-foreground hover:underline">
+        <Link href="/register" className="text-foreground font-medium hover:underline">
           Criar conta
         </Link>
       </CardFooter>

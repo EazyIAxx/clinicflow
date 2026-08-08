@@ -72,14 +72,14 @@ export function AppSidebar() {
                 </Avatar>
                 <div className="flex flex-col overflow-hidden text-left">
                   <span className="truncate text-sm font-medium">{mockUser.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">{mockUser.role}</span>
+                  <span className="text-muted-foreground truncate text-xs">{mockUser.role}</span>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{mockUser.name}</span>
-                    <span className="text-xs text-muted-foreground">{mockUser.email}</span>
+                    <span className="text-muted-foreground text-xs">{mockUser.email}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
