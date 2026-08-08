@@ -42,3 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# python (scripts vendorizados em skills)
+__pycache__/
+*.pyc
