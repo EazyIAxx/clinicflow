@@ -66,11 +66,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-prontuario`
 - **Objetivo**: interface de cadastro de pacientes e do módulo de prontuário/arquivos, seguindo a referência visual Notion.
 - **Entregas**:
-  - [ ] Listagem e cadastro de pacientes com busca/filtros
-  - [ ] Página de perfil do paciente
-  - [ ] Upload de arquivos (UI) organizados por paciente/categoria (exames, receitas, documentos)
-  - [ ] Indicação visual de controle de acesso por perfil
-- **Commit final**: `feat(ui): interface de pacientes e prontuário/arquivos`
+  - [x] Listagem e cadastro de pacientes com busca/filtros
+  - [x] Página de perfil do paciente
+  - [x] Upload de arquivos (UI) organizados por paciente/categoria (exames, receitas, documentos)
+  - [x] Indicação visual de controle de acesso por perfil
+- **Commit final**: `feat(ui): interface de pacientes e prontuário/arquivos` ✅ (branch `feature/ui-prontuario`, PR #1, mergeada em `main`)
 
 ### M5. UI de relatórios + configurações
 
