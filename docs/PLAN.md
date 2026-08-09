@@ -88,11 +88,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-crm`
 - **Objetivo**: interface de funil de leads/prospects — pessoas interessadas que ainda não são pacientes — da recepção do primeiro contato até a conversão em paciente agendado. Complementa o M4, que só cobre quem já é paciente.
 - **Entregas**:
-  - [ ] Quadro Kanban de leads por etapa (novo contato → em conversa → agendado → convertido / perdido)
-  - [ ] Cadastro de lead (nome, contato, origem, interesse, responsável)
-  - [ ] Ficha do lead com histórico de interações (notas, ligações, mensagens)
-  - [ ] Conversão de lead em paciente (integra com o cadastro do M4)
-- **Commit final**: `feat(ui): interface de CRM (funil de leads)`
+  - [x] Quadro Kanban de leads por etapa (novo contato → em conversa → agendado → convertido / perdido)
+  - [x] Cadastro de lead (nome, contato, origem, interesse, responsável)
+  - [x] Ficha do lead com histórico de interações (notas, ligações, mensagens)
+  - [x] Conversão de lead em paciente (integra com o cadastro do M4)
+- **Commit final**: `feat(ui): interface de CRM (funil de leads)` ✅ (branch `feature/ui-crm`, PR #4, mergeada em `main`)
 
 ### M7. UI de orçamentos
 
