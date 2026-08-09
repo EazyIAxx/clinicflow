@@ -110,11 +110,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-financeiro`
 - **Objetivo**: cobranças e fluxo de caixa a partir dos orçamentos aprovados (M7) e das consultas realizadas.
 - **Entregas**:
-  - [ ] Contas a receber (vinculadas a orçamentos aprovados e consultas)
-  - [ ] Registro de pagamento (forma, data, status)
-  - [ ] Despesas gerais da clínica (cadastro simples)
-  - [ ] Dashboard financeiro (receita do mês, pendências, inadimplência)
-- **Commit final**: `feat(ui): interface financeira`
+  - [x] Contas a receber (vinculadas a orçamentos aprovados e consultas)
+  - [x] Registro de pagamento (forma, data, status)
+  - [x] Despesas gerais da clínica (cadastro simples)
+  - [x] Dashboard financeiro (receita do mês, pendências, inadimplência)
+- **Commit final**: `feat(ui): interface financeira` ✅ (branch `feature/ui-financeiro`, PR #7, mergeada em `main`)
 
 ### M9. UI de automações
 
