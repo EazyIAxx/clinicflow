@@ -3,7 +3,9 @@ import {
   differenceInCalendarDays,
   eachDayOfInterval,
   format,
+  isSameDay,
   isSameMonth,
+  isSameWeek,
   subDays,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -336,13 +338,20 @@ export function getFinanceStats({
   expenses: Expense[];
   referenceDate: Date;
 }) {
-  const monthRevenue = charges
-    .filter(
-      (charge) =>
-        charge.status === "pago" &&
-        charge.paidAt &&
-        isSameMonth(new Date(`${charge.paidAt}T00:00:00`), referenceDate),
+  const paidCharges = charges.filter((charge) => charge.status === "pago" && charge.paidAt);
+
+  const dailyRevenue = paidCharges
+    .filter((charge) => isSameDay(new Date(`${charge.paidAt}T00:00:00`), referenceDate))
+    .reduce((sum, charge) => sum + charge.amount, 0);
+
+  const weeklyRevenue = paidCharges
+    .filter((charge) =>
+      isSameWeek(new Date(`${charge.paidAt}T00:00:00`), referenceDate, { weekStartsOn: 1 }),
     )
+    .reduce((sum, charge) => sum + charge.amount, 0);
+
+  const monthRevenue = paidCharges
+    .filter((charge) => isSameMonth(new Date(`${charge.paidAt}T00:00:00`), referenceDate))
     .reduce((sum, charge) => sum + charge.amount, 0);
 
   const pendingCharges = charges.filter(
@@ -357,10 +366,13 @@ export function getFinanceStats({
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   return {
+    dailyRevenue,
+    weeklyRevenue,
     monthRevenue,
     pendingCount: pendingCharges.length,
     pendingAmount: pendingCharges.reduce((sum, charge) => sum + charge.amount, 0),
     overdueAmount: overdueCharges.reduce((sum, charge) => sum + charge.amount, 0),
     monthExpenses,
+    netAmount: monthRevenue - monthExpenses,
   };
 }

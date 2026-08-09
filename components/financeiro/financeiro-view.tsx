@@ -169,31 +169,62 @@ export function FinanceiroView({
         </TabsList>
 
         <TabsContent value="visao-geral" className="mt-4 flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Card>
-              <CardHeader>
-                <CardDescription>Receita do mês</CardDescription>
-                <CardTitle className="text-2xl">{formatCurrency(stats.monthRevenue)}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardDescription>Despesas do mês</CardDescription>
-                <CardTitle className="text-2xl">{formatCurrency(stats.monthExpenses)}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardDescription>Pendências ({stats.pendingCount})</CardDescription>
-                <CardTitle className="text-2xl">{formatCurrency(stats.pendingAmount)}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardDescription>Inadimplência</CardDescription>
-                <CardTitle className="text-2xl">{formatCurrency(stats.overdueAmount)}</CardTitle>
-              </CardHeader>
-            </Card>
+          <div className="flex flex-col gap-2">
+            <h3 className="text-muted-foreground text-sm font-medium">Faturamento</h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardDescription>Hoje</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.dailyRevenue)}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardDescription>Esta semana</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.weeklyRevenue)}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardDescription>Este mês</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.monthRevenue)}</CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-muted-foreground text-sm font-medium">Resumo do mês</h3>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Card>
+                <CardHeader>
+                  <CardDescription>Receita</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.monthRevenue)}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardDescription>Despesas</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.monthExpenses)}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardDescription>Valor líquido</CardDescription>
+                  <CardTitle
+                    className={`text-2xl ${stats.netAmount < 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}`}
+                  >
+                    {formatCurrency(stats.netAmount)}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardDescription>Inadimplência</CardDescription>
+                  <CardTitle className="text-2xl">{formatCurrency(stats.overdueAmount)}</CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
