@@ -33,21 +33,24 @@ export function PatientFormDialog({
   open,
   onOpenChange,
   patient,
+  initialValues,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patient?: Patient;
+  /** Pré-preenchimento usado só na criação (ex.: conversão de lead do CRM). */
+  initialValues?: { name?: string; phone?: string; email?: string };
   onSubmit: (patient: Patient) => void;
 }) {
   const isEditing = Boolean(patient);
 
-  const [name, setName] = useState(patient?.name ?? "");
+  const [name, setName] = useState(patient?.name ?? initialValues?.name ?? "");
   const [birthDate, setBirthDate] = useState<Date | undefined>(
     patient?.birthDate ? new Date(`${patient.birthDate}T00:00:00`) : undefined,
   );
-  const [phone, setPhone] = useState(patient?.phone ?? "");
-  const [email, setEmail] = useState(patient?.email ?? "");
+  const [phone, setPhone] = useState(patient?.phone ?? initialValues?.phone ?? "");
+  const [email, setEmail] = useState(patient?.email ?? initialValues?.email ?? "");
   const [cpf, setCpf] = useState(patient?.cpf ?? "");
   const [responsibleProfessionalId, setResponsibleProfessionalId] = useState(
     patient?.responsibleProfessionalId ?? NONE_PROFESSIONAL,

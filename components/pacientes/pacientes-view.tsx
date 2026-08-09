@@ -1,6 +1,7 @@
 "use client";
 
 import { isSameMonth } from "date-fns";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { PacientesTable } from "@/components/pacientes/pacientes-table";
@@ -27,14 +28,27 @@ export function PacientesView({
   initialPatients: Patient[];
   referenceDate: Date;
 }) {
+  const searchParams = useSearchParams();
+
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PatientStatus | "todos">("todos");
   const [professionalFilter, setProfessionalFilter] = useState("todos");
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Convertendo um lead do CRM em paciente: a URL chega com ?novo=1&nome=...
+  // já preenche e abre o formulário direto, sem precisar de efeito.
+  const [isDialogOpen, setIsDialogOpen] = useState(() => searchParams.get("novo") === "1");
   const [dialogKey, setDialogKey] = useState(0);
   const [editingPatient, setEditingPatient] = useState<Patient | undefined>(undefined);
+  const [prefillValues] = useState(() =>
+    searchParams.get("novo") === "1"
+      ? {
+          name: searchParams.get("nome") ?? undefined,
+          phone: searchParams.get("telefone") ?? undefined,
+          email: searchParams.get("email") ?? undefined,
+        }
+      : undefined,
+  );
 
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
@@ -123,6 +137,7 @@ export function PacientesView({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         patient={editingPatient}
+        initialValues={editingPatient ? undefined : prefillValues}
         onSubmit={handleSubmit}
       />
 
