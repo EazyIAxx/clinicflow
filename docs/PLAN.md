@@ -113,7 +113,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [x] Contas a receber (vinculadas a orçamentos aprovados e consultas)
   - [x] Registro de pagamento (forma, data, status)
   - [x] Despesas gerais da clínica (cadastro simples)
-  - [x] Dashboard financeiro (receita do mês, pendências, inadimplência)
+  - [x] Dashboard financeiro (faturamento diário/semanal/mensal, valor líquido, despesas, inadimplência)
 - **Commit final**: `feat(ui): interface financeira` ✅ (branch `feature/ui-financeiro`, PR #7, mergeada em `main`)
 
 ### M9. UI de automações
