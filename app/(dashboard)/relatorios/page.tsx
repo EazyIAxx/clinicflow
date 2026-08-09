@@ -1,18 +1,30 @@
 import type { Metadata } from "next";
 
-import { ModulePlaceholder } from "@/components/shared/module-placeholder";
+import { RelatoriosView } from "@/components/relatorios/relatorios-view";
+import { getMockAppointments } from "@/lib/mock-agenda";
+import { getMockDocuments } from "@/lib/mock-documentos";
+import { getMockMovements, getMockStockItems } from "@/lib/mock-estoque";
+import { getMockPatients } from "@/lib/mock-pacientes";
 
 export const metadata: Metadata = {
   title: "Relatórios — ClinicFlow",
 };
 
+// As métricas ("consultas no mês", "esta semana" etc.) precisam refletir a
+// data real de cada acesso, não a do build.
+export const dynamic = "force-dynamic";
+
 export default function RelatoriosPage() {
+  const today = new Date();
+
   return (
-    <ModulePlaceholder
-      title="Relatórios"
-      description="Métricas consolidadas de agenda e estoque, com exportação de dados."
-      milestone="M5"
-      stats={[{ label: "Relatórios gerados este mês", value: "12" }]}
+    <RelatoriosView
+      appointments={getMockAppointments(today)}
+      items={getMockStockItems(today)}
+      movements={getMockMovements(today)}
+      patients={getMockPatients(today)}
+      documents={getMockDocuments(today)}
+      referenceDate={today}
     />
   );
 }

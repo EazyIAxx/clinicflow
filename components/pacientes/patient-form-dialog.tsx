@@ -92,7 +92,10 @@ export function PatientFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1" onSubmit={handleSubmit}>
+        <form
+          className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1"
+          onSubmit={handleSubmit}
+        >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="patient-name">Nome</Label>
             <Input

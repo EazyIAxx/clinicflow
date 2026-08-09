@@ -59,7 +59,11 @@ export function PatientProfileView({
 
   return (
     <div className="flex flex-col gap-4">
-      <PatientProfileHeader patient={patient} referenceDate={referenceDate} onEdit={openEditDialog} />
+      <PatientProfileHeader
+        patient={patient}
+        referenceDate={referenceDate}
+        onEdit={openEditDialog}
+      />
 
       <Tabs defaultValue="visao-geral">
         <TabsList>

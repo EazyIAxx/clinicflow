@@ -1,4 +1,12 @@
-import { Eye, File, FileImage, FileText, MoreHorizontal, Trash2, type LucideIcon } from "lucide-react";
+import {
+  Eye,
+  File,
+  FileImage,
+  FileText,
+  MoreHorizontal,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,7 +78,8 @@ export function DocumentCard({
             {categoryMeta.accessRoles.length === 3 ? "Todos os perfis" : "Acesso restrito"}
           </TooltipTrigger>
           <TooltipContent>
-            Visível para: {categoryMeta.accessRoles.map((role) => accessRoleLabels[role]).join(", ")}
+            Visível para:{" "}
+            {categoryMeta.accessRoles.map((role) => accessRoleLabels[role]).join(", ")}
           </TooltipContent>
         </Tooltip>
       </div>

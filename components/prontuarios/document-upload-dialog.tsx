@@ -116,7 +116,8 @@ export function DocumentUploadDialog({
                 <SelectTrigger className="w-full">
                   <SelectValue>
                     {(value: string) =>
-                      patients.find((patient) => patient.id === value)?.name ?? "Selecionar paciente"
+                      patients.find((patient) => patient.id === value)?.name ??
+                      "Selecionar paciente"
                     }
                   </SelectValue>
                 </SelectTrigger>

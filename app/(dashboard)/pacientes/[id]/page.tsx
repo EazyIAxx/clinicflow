@@ -31,5 +31,11 @@ export default async function PatientProfilePage({ params }: PageProps) {
 
   const documents = getMockDocuments(today).filter((document) => document.patientId === id);
 
-  return <PatientProfileView initialPatient={patient} initialDocuments={documents} referenceDate={today} />;
+  return (
+    <PatientProfileView
+      initialPatient={patient}
+      initialDocuments={documents}
+      referenceDate={today}
+    />
+  );
 }

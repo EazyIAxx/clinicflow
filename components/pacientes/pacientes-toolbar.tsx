@@ -48,7 +48,9 @@ export function PacientesToolbar({
           <SelectTrigger className="w-40">
             <SelectValue>
               {(value: string) =>
-                value === "todos" ? "Todos os status" : patientStatusMeta[value as PatientStatus].label
+                value === "todos"
+                  ? "Todos os status"
+                  : patientStatusMeta[value as PatientStatus].label
               }
             </SelectValue>
           </SelectTrigger>
