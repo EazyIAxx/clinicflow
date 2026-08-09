@@ -83,11 +83,66 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [x] Tela de configurações da clínica
 - **Commit final**: `feat(ui): interface de relatórios, exportação e configurações` ✅ (branch `feature/ui-relatorios-config`, PR #3, mergeada em `main`)
 
+### M6. UI de CRM (funil de leads)
+
+- **Branch**: `feature/ui-crm`
+- **Objetivo**: interface de funil de leads/prospects — pessoas interessadas que ainda não são pacientes — da recepção do primeiro contato até a conversão em paciente agendado. Complementa o M4, que só cobre quem já é paciente.
+- **Entregas**:
+  - [ ] Quadro Kanban de leads por etapa (novo contato → em conversa → agendado → convertido / perdido)
+  - [ ] Cadastro de lead (nome, contato, origem, interesse, responsável)
+  - [ ] Ficha do lead com histórico de interações (notas, ligações, mensagens)
+  - [ ] Conversão de lead em paciente (integra com o cadastro do M4)
+- **Commit final**: `feat(ui): interface de CRM (funil de leads)`
+
+### M7. UI de orçamentos
+
+- **Branch**: `feature/ui-orcamentos`
+- **Objetivo**: geração de orçamentos de procedimentos para o paciente, com tabela de preços — base para as cobranças do M8.
+- **Entregas**:
+  - [ ] Tabela de procedimentos e preços (cadastro)
+  - [ ] Criação de orçamento por paciente (itens, valores, desconto, validade)
+  - [ ] Estados do orçamento (rascunho, enviado, aprovado, recusado, expirado)
+  - [ ] Visualização/compartilhamento do orçamento com o paciente (UI)
+- **Commit final**: `feat(ui): interface de orçamentos`
+
+### M8. UI financeiro
+
+- **Branch**: `feature/ui-financeiro`
+- **Objetivo**: cobranças e fluxo de caixa a partir dos orçamentos aprovados (M7) e das consultas realizadas.
+- **Entregas**:
+  - [ ] Contas a receber (vinculadas a orçamentos aprovados e consultas)
+  - [ ] Registro de pagamento (forma, data, status)
+  - [ ] Despesas gerais da clínica (cadastro simples)
+  - [ ] Dashboard financeiro (receita do mês, pendências, inadimplência)
+- **Commit final**: `feat(ui): interface financeira`
+
+### M9. UI de automações
+
+- **Branch**: `feature/ui-automacoes`
+- **Objetivo**: motor de regras configurável pela própria clínica (gatilho → condição → ação) — mais genérico do que os lembretes fixos do M19 e complementar ao agente de IA do WhatsApp (M20), sem se limitar a eles.
+- **Entregas**:
+  - [ ] Listagem de regras/automações cadastradas
+  - [ ] Criação de regra (gatilho + condição + ação — ex.: "X dias após consulta → enviar mensagem")
+  - [ ] Modelos prontos de regras comuns (lembrete de retorno, estoque baixo, aniversário do paciente)
+  - [ ] Ativar/pausar regras
+- **Commit final**: `feat(ui): interface de automações`
+
+### M10. UI de dashboard (visão geral operacional)
+
+- **Branch**: `feature/ui-dashboard`
+- **Objetivo**: home operacional do sistema — o que a recepção/gestor vê ao abrir o sistema no dia a dia. Diferente do M5 (Relatórios), que é analítico/histórico.
+- **Entregas**:
+  - [ ] Resumo da agenda do dia (próximos horários, confirmações pendentes)
+  - [ ] Pendências entre módulos (orçamentos aguardando aprovação, estoque crítico, leads sem retorno)
+  - [ ] Atalhos rápidos (novo agendamento, novo paciente, novo orçamento, novo lead)
+  - [ ] Feed de atividade recente
+- **Commit final**: `feat(ui): dashboard operacional (visão geral)`
+
 ---
 
 ## Fase 2 — Backend (conectando cada módulo aos dados reais)
 
-### M6. Banco de dados + autenticação real
+### M11. Banco de dados + autenticação real
 
 - **Branch**: `feature/backend-auth-db`
 - **Objetivo**: colocar Supabase e Prisma no ar e substituir o mock de autenticação do M1 por login real com permissões por perfil.
@@ -100,7 +155,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Configurar Resend e enviar e-mails de autenticação (confirmação de cadastro, redefinição de senha, convite de usuário)
 - **Commit final**: `feat(backend): banco de dados, autenticação e permissões reais`
 
-### M7. Backend de agendamento
+### M12. Backend de agendamento
 
 - **Branch**: `feature/backend-agenda`
 - **Objetivo**: implementar a lógica real de agendamento e conectar à UI construída no M2.
@@ -111,7 +166,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Conectar UI de agenda (M2) aos dados reais
 - **Commit final**: `feat(backend): lógica de agendamento e integração com a UI`
 
-### M8. Backend de estoque
+### M13. Backend de estoque
 
 - **Branch**: `feature/backend-estoque`
 - **Objetivo**: implementar a lógica real de estoque e conectar à UI construída no M3.
@@ -122,7 +177,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Conectar UI de estoque (M3) aos dados reais
 - **Commit final**: `feat(backend): lógica de estoque e integração com a UI`
 
-### M9. Backend de pacientes + prontuário/arquivos
+### M14. Backend de pacientes + prontuário/arquivos
 
 - **Branch**: `feature/backend-prontuario`
 - **Objetivo**: implementar cadastro real de pacientes e armazenamento de arquivos, conectando à UI construída no M4.
@@ -133,17 +188,49 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Conectar UI de pacientes/prontuário (M4) aos dados reais
 - **Commit final**: `feat(backend): cadastro de pacientes, upload e controle de acesso a arquivos`
 
-### M10. Backend de relatórios
+### M15. Backend de relatórios
 
 - **Branch**: `feature/backend-relatorios`
-- **Objetivo**: implementar relatórios reais e exportação, conectando à UI construída no M5.
+- **Objetivo**: implementar relatórios reais e exportação, conectando à UI construída no M5. Também alimenta o dashboard operacional do M10, que agrega dados dos demais módulos já com backend.
 - **Entregas**:
   - [ ] Queries agregadas para métricas de agenda/estoque
   - [ ] Exportação de relatórios (CSV/PDF)
   - [ ] Conectar dashboard de relatórios (M5) aos dados reais
+  - [ ] Conectar dashboard operacional (M10) aos dados reais
 - **Commit final**: `feat(backend): relatórios reais e exportação de dados`
 
-### M11. Notificações + chat interno
+### M16. Backend de CRM
+
+- **Branch**: `feature/backend-crm`
+- **Objetivo**: implementar o funil de leads real e conectar à UI construída no M6.
+- **Entregas**:
+  - [ ] Schema Prisma de leads e interações
+  - [ ] Server Actions de criar/mover/converter lead em paciente
+  - [ ] Conectar UI de CRM (M6) aos dados reais
+- **Commit final**: `feat(backend): funil de leads real e integração com a UI`
+
+### M17. Backend de orçamentos + financeiro
+
+- **Branch**: `feature/backend-orcamentos-financeiro`
+- **Objetivo**: implementar orçamentos e cobranças reais, conectando às UIs construídas no M7 e M8.
+- **Entregas**:
+  - [ ] Schema Prisma de procedimentos, orçamentos e cobranças
+  - [ ] Server Actions de criar/aprovar orçamento e gerar cobrança
+  - [ ] Registro real de pagamentos e cálculo de inadimplência
+  - [ ] Conectar UI de orçamentos (M7) e financeiro (M8) aos dados reais
+- **Commit final**: `feat(backend): orçamentos e financeiro reais`
+
+### M18. Backend de automações
+
+- **Branch**: `feature/backend-automacoes`
+- **Objetivo**: implementar a execução real das regras de automação e conectar à UI construída no M9.
+- **Entregas**:
+  - [ ] Schema Prisma de regras de automação
+  - [ ] Motor de execução (job/cron) que avalia gatilhos e dispara ações
+  - [ ] Conectar UI de automações (M9) aos dados reais
+- **Commit final**: `feat(backend): motor de automações real`
+
+### M19. Notificações + chat interno
 
 - **Branch**: `feature/notificacoes-chat`
 - **Objetivo**: cobrir os requisitos funcionais de notificações e chat/mensagens internas da equipe.
@@ -158,7 +245,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 
 ## Fase 3 — Integração final e deploy
 
-### M12. Integração WhatsApp + agente de IA
+### M20. Integração WhatsApp + agente de IA
 
 - **Branch**: `feature/whatsapp-ai-agent`
 - **Objetivo**: etapa final do PRD — conectar o sistema ao WhatsApp Business Platform com um agente de IA para atendimento automático.
@@ -169,7 +256,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [ ] Testar o fluxo completo de atendimento via WhatsApp de ponta a ponta
 - **Commit final**: `feat: integração com WhatsApp Business Platform e agente de IA de atendimento`
 
-### M13. Deploy e produção
+### M21. Deploy e produção
 
 - **Branch**: `chore/deploy-producao`
 - **Objetivo**: preparar e executar o deploy de produção completo do ClinicFlow.

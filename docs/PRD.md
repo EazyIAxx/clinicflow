@@ -8,7 +8,7 @@ A falta de um sistema único também dificulta ter visão consolidada da operaç
 
 ## 2. PROPOSED SOLUTION
 
-O ClinicFlow é um sistema de gestão para clínicas que centraliza três frentes: agendamento de consultas/procedimentos (com calendário por profissional, confirmação e remarcação), controle de estoque de materiais e medicamentos (entradas, saídas, alertas de reposição e validade), e armazenamento seguro de arquivos dos pacientes (exames, prontuários, receitas, documentos), organizados por paciente e com controle de acesso.
+O ClinicFlow é um sistema de gestão para clínicas que centraliza agendamento de consultas/procedimentos (com calendário por profissional, confirmação e remarcação), controle de estoque de materiais e medicamentos (entradas, saídas, alertas de reposição e validade), armazenamento seguro de arquivos dos pacientes (exames, prontuários, receitas, documentos) organizados por paciente e com controle de acesso, além de CRM (funil de leads até virarem pacientes), orçamentos de procedimentos, financeiro (cobranças e fluxo de caixa) e automações configuráveis pela própria clínica.
 
 Na etapa final do projeto, o sistema integra com o WhatsApp via API oficial do Meta (WhatsApp Business Platform). Um agente de IA fica responsável pelo atendimento automático nesse canal: agenda e remarca consultas, responde dúvidas frequentes, envia lembretes e confirmações, e escala para um humano quando necessário — tudo conectado à agenda e aos dados da clínica.
 
@@ -28,6 +28,11 @@ Na etapa final do projeto, o sistema integra com o WhatsApp via API oficial do M
 Gestão de estoque: cadastro de itens (materiais/medicamentos), entrada e saída, controle de validade e lote, alerta de estoque mínimo.
 Prontuário/arquivos do paciente: upload e organização de exames, receitas e documentos por paciente, com controle de acesso por perfil.
 Agendamento: calendário por profissional/sala, confirmação, remarcação e cancelamento, bloqueio de horários.
+CRM: funil de leads/prospects (pessoas interessadas que ainda não são pacientes), da recepção do primeiro contato até a conversão em paciente agendado.
+Orçamentos: tabela de procedimentos e preços, geração de orçamento por paciente, estados (rascunho, enviado, aprovado, recusado, expirado).
+Financeiro: contas a receber a partir de orçamentos aprovados e consultas realizadas, registro de pagamentos, despesas gerais e indicadores de inadimplência.
+Automações: motor de regras configurável pela clínica (gatilho, condição e ação), complementar aos lembretes automáticos e ao agente de IA do WhatsApp.
+Dashboard operacional: visão geral do dia a dia (agenda do dia, pendências entre módulos, atalhos rápidos), distinta dos relatórios analíticos.
 Integração com WhatsApp (API oficial do Meta / WhatsApp Business Platform) — última etapa do projeto: agente de IA responsável por atendimento, agendamento e lembretes automáticos via WhatsApp, com handoff para atendente humano quando necessário.
 
 ## 4. USER PERSONAS

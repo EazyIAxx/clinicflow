@@ -30,6 +30,11 @@ app/
     prontuarios/
     relatorios/
     configuracoes/
+    crm/
+    orcamentos/
+    financeiro/
+    automacoes/
+    dashboard/
   api/                 # API routes (webhook do WhatsApp, etc.)
 components/
   ui/                  # componentes shadcn/ui
@@ -79,6 +84,11 @@ docs/
 3. Estoque: cadastro de itens, entrada/saída, validade e lote, alerta de estoque mínimo
 4. Prontuário/arquivos do paciente: upload e organização de exames, receitas e documentos, controle de acesso
 5. Relatórios e exportação
-6. Integração WhatsApp + agente de IA (etapa final): atendimento, agendamento e lembretes automáticos, com handoff para humano
+6. CRM: funil de leads/prospects até a conversão em paciente
+7. Orçamentos: tabela de procedimentos/preços e geração de orçamento por paciente
+8. Financeiro: contas a receber, pagamentos, despesas e inadimplência, a partir dos orçamentos aprovados
+9. Automações: motor de regras configurável pela clínica (gatilho, condição, ação)
+10. Dashboard operacional: visão geral do dia a dia, distinta dos relatórios analíticos
+11. Integração WhatsApp + agente de IA (etapa final): atendimento, agendamento e lembretes automáticos, com handoff para humano
 
 Cada marco deve ser testado antes de avançar para o próximo.
