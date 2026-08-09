@@ -7,6 +7,16 @@ import { EstoqueToolbar } from "@/components/estoque/estoque-toolbar";
 import { ItemFormDialog } from "@/components/estoque/item-form-dialog";
 import { MovementsTable } from "@/components/estoque/movements-table";
 import { StockMovementDialog } from "@/components/estoque/stock-movement-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { StockCategory, StockItem, StockMovement } from "@/lib/mock-estoque";
@@ -33,6 +43,8 @@ export function EstoqueView({
   const [isMovementDialogOpen, setIsMovementDialogOpen] = useState(false);
   const [movementDialogKey, setMovementDialogKey] = useState(0);
   const [movementItem, setMovementItem] = useState<StockItem | null>(null);
+
+  const [itemToDelete, setItemToDelete] = useState<StockItem | null>(null);
 
   const itemsById = useMemo(
     () => Object.fromEntries(items.map((item) => [item.id, item])),
@@ -95,6 +107,12 @@ export function EstoqueView({
     setIsMovementDialogOpen(true);
   }
 
+  function handleConfirmDelete() {
+    if (!itemToDelete) return;
+    setItems((prev) => prev.filter((existing) => existing.id !== itemToDelete.id));
+    setItemToDelete(null);
+  }
+
   function handleMovementSubmit(movement: StockMovement) {
     setMovements((prev) => [...prev, movement]);
     setItems((prev) =>
@@ -154,6 +172,7 @@ export function EstoqueView({
             referenceDate={referenceDate}
             onEdit={openEditItemDialog}
             onRegisterMovement={openMovementDialog}
+            onDelete={setItemToDelete}
           />
         </TabsContent>
 
@@ -177,6 +196,27 @@ export function EstoqueView({
         item={movementItem}
         onSubmit={handleMovementSubmit}
       />
+
+      <AlertDialog
+        open={Boolean(itemToDelete)}
+        onOpenChange={(open) => !open && setItemToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover &quot;{itemToDelete?.name}&quot; do estoque? Essa ação
+              não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={handleConfirmDelete}>
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
