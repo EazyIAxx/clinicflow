@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LineChart,
   Package,
+  Receipt,
   Settings,
   Users,
   type LucideIcon,
@@ -36,6 +37,7 @@ export const navGroups: NavGroup[] = [
     label: "Gestão",
     items: [
       { title: "Estoque", href: "/estoque", icon: Package, milestone: "M3" },
+      { title: "Orçamentos", href: "/orcamentos", icon: Receipt, milestone: "M7" },
       { title: "Relatórios", href: "/relatorios", icon: LineChart, milestone: "M5" },
       { title: "Configurações", href: "/configuracoes", icon: Settings, milestone: "M5" },
     ],
