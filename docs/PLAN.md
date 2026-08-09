@@ -99,11 +99,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-orcamentos`
 - **Objetivo**: geração de orçamentos de procedimentos para o paciente, com tabela de preços — base para as cobranças do M8.
 - **Entregas**:
-  - [ ] Tabela de procedimentos e preços (cadastro)
-  - [ ] Criação de orçamento por paciente (itens, valores, desconto, validade)
-  - [ ] Estados do orçamento (rascunho, enviado, aprovado, recusado, expirado)
-  - [ ] Visualização/compartilhamento do orçamento com o paciente (UI)
-- **Commit final**: `feat(ui): interface de orçamentos`
+  - [x] Tabela de procedimentos e preços (cadastro)
+  - [x] Criação de orçamento por paciente (itens, valores, desconto, validade)
+  - [x] Estados do orçamento (rascunho, enviado, aprovado, recusado, expirado)
+  - [x] Visualização/compartilhamento do orçamento com o paciente (UI)
+- **Commit final**: `feat(ui): interface de orçamentos` ✅ (branch `feature/ui-orcamentos`, PR #5, mergeada em `main`)
 
 ### M8. UI financeiro
 
