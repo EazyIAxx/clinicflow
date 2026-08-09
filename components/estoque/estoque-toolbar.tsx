@@ -26,21 +26,21 @@ export function EstoqueToolbar({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+        <div className="relative w-full sm:w-auto">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Buscar item..."
-            className="w-56 pl-8"
+            className="w-full pl-8 sm:w-56"
           />
         </div>
         <Select
           value={categoryFilter}
           onValueChange={(value) => onCategoryFilterChange(value as StockCategory | "todas")}
         >
-          <SelectTrigger className="w-52">
+          <SelectTrigger className="w-full sm:w-52">
             <SelectValue>
               {(value: string) =>
                 value === "todas" ? "Todas as categorias" : categoryLabels[value as StockCategory]
