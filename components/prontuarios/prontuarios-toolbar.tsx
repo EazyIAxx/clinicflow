@@ -37,21 +37,21 @@ export function ProntuariosToolbar({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+        <div className="relative w-full sm:w-auto">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Buscar documento ou paciente..."
-            className="w-64 pl-8"
+            className="w-full pl-8 sm:w-64"
           />
         </div>
         <Select
           value={categoryFilter}
           onValueChange={(value) => onCategoryFilterChange(value as DocumentCategory | "todas")}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue>
               {(value: string) =>
                 value === "todas"
@@ -73,7 +73,7 @@ export function ProntuariosToolbar({
           value={patientFilter}
           onValueChange={(value) => onPatientFilterChange(value as string)}
         >
-          <SelectTrigger className="w-52">
+          <SelectTrigger className="w-full sm:w-52">
             <SelectValue>
               {(value: string) =>
                 value === "todos"

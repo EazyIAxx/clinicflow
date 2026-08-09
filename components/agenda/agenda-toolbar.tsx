@@ -35,7 +35,7 @@ export function AgendaToolbar({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
         <Tabs value={viewMode} onValueChange={(value) => onViewModeChange(value as AgendaViewMode)}>
           <TabsList>
             <TabsTrigger value="dia">Dia</TabsTrigger>
@@ -47,7 +47,7 @@ export function AgendaToolbar({
           value={selectedProfessionalId}
           onValueChange={(value) => onProfessionalChange(value as string)}
         >
-          <SelectTrigger className="w-56">
+          <SelectTrigger className="w-full sm:w-56">
             <SelectValue>
               {(value: string) =>
                 value === "todos"
