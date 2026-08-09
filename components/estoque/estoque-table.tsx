@@ -1,4 +1,4 @@
-import { ArrowLeftRight, MoreHorizontal, Pencil } from "lucide-react";
+import { ArrowLeftRight, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -24,11 +25,13 @@ export function EstoqueTable({
   referenceDate,
   onEdit,
   onRegisterMovement,
+  onDelete,
 }: {
   items: StockItem[];
   referenceDate: Date;
   onEdit: (item: StockItem) => void;
   onRegisterMovement: (item: StockItem) => void;
+  onDelete: (item: StockItem) => void;
 }) {
   return (
     <div className="rounded-lg border">
@@ -109,6 +112,11 @@ export function EstoqueTable({
                       <DropdownMenuItem onClick={() => onRegisterMovement(item)}>
                         <ArrowLeftRight />
                         Registrar movimentação
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem variant="destructive" onClick={() => onDelete(item)}>
+                        <Trash2 />
+                        Remover item
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, UserRound } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, UserRound } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,9 +27,11 @@ const formatDate = (date?: string) => (date ? date.split("-").reverse().join("/"
 export function PacientesTable({
   patients,
   onEdit,
+  onDelete,
 }: {
   patients: Patient[];
   onEdit: (patient: Patient) => void;
+  onDelete: (patient: Patient) => void;
 }) {
   return (
     <div className="rounded-lg border">
@@ -93,6 +96,11 @@ export function PacientesTable({
                       <DropdownMenuItem onClick={() => onEdit(patient)}>
                         <Pencil />
                         Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem variant="destructive" onClick={() => onDelete(patient)}>
+                        <Trash2 />
+                        Excluir paciente
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

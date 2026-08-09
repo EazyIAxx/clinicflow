@@ -6,6 +6,16 @@ import { useState } from "react";
 import { PacientesTable } from "@/components/pacientes/pacientes-table";
 import { PacientesToolbar } from "@/components/pacientes/pacientes-toolbar";
 import { PatientFormDialog } from "@/components/pacientes/patient-form-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Patient } from "@/lib/mock-pacientes";
 import type { PatientStatus } from "@/lib/patient-status";
@@ -25,6 +35,8 @@ export function PacientesView({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogKey, setDialogKey] = useState(0);
   const [editingPatient, setEditingPatient] = useState<Patient | undefined>(undefined);
+
+  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch = patient.name.toLowerCase().includes(search.toLowerCase());
@@ -60,6 +72,12 @@ export function PacientesView({
     });
   }
 
+  function handleConfirmDelete() {
+    if (!patientToDelete) return;
+    setPatients((prev) => prev.filter((existing) => existing.id !== patientToDelete.id));
+    setPatientToDelete(null);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -93,7 +111,11 @@ export function PacientesView({
           onProfessionalFilterChange={setProfessionalFilter}
           onNewPatient={openNewPatientDialog}
         />
-        <PacientesTable patients={filteredPatients} onEdit={openEditPatientDialog} />
+        <PacientesTable
+          patients={filteredPatients}
+          onEdit={openEditPatientDialog}
+          onDelete={setPatientToDelete}
+        />
       </div>
 
       <PatientFormDialog
@@ -103,6 +125,27 @@ export function PacientesView({
         patient={editingPatient}
         onSubmit={handleSubmit}
       />
+
+      <AlertDialog
+        open={Boolean(patientToDelete)}
+        onOpenChange={(open) => !open && setPatientToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir paciente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir &quot;{patientToDelete?.name}&quot;? Essa ação não pode
+              ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={handleConfirmDelete}>
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
