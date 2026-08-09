@@ -77,11 +77,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-relatorios-config`
 - **Objetivo**: dashboards de relatórios e telas de configuração/permissões, seguindo a referência visual Linear.
 - **Entregas**:
-  - [ ] Dashboard de relatórios (métricas de agenda/estoque) com dados mockados
-  - [ ] Ação de exportação (UI, sem lógica real ainda)
-  - [ ] Tela de gerenciamento de usuários e permissões por perfil
-  - [ ] Tela de configurações da clínica
-- **Commit final**: `feat(ui): interface de relatórios, exportação e configurações`
+  - [x] Dashboard de relatórios (métricas de agenda/estoque) com dados mockados
+  - [x] Ação de exportação (UI, sem lógica real ainda)
+  - [x] Tela de gerenciamento de usuários e permissões por perfil
+  - [x] Tela de configurações da clínica
+- **Commit final**: `feat(ui): interface de relatórios, exportação e configurações` ✅ (branch `feature/ui-relatorios-config`, PR #3, mergeada em `main`)
 
 ---
 
