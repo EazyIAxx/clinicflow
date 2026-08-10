@@ -121,11 +121,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-automacoes`
 - **Objetivo**: motor de regras configurável pela própria clínica (gatilho → condição → ação) — mais genérico do que os lembretes fixos do M19 e complementar ao agente de IA do WhatsApp (M20), sem se limitar a eles.
 - **Entregas**:
-  - [ ] Listagem de regras/automações cadastradas
-  - [ ] Criação de regra (gatilho + condição + ação — ex.: "X dias após consulta → enviar mensagem")
-  - [ ] Modelos prontos de regras comuns (lembrete de retorno, estoque baixo, aniversário do paciente)
-  - [ ] Ativar/pausar regras
-- **Commit final**: `feat(ui): interface de automações`
+  - [x] Listagem de regras/automações cadastradas
+  - [x] Criação de regra (gatilho + condição + ação — ex.: "X dias após consulta → enviar mensagem")
+  - [x] Modelos prontos de regras comuns (lembrete de retorno, estoque baixo, aniversário do paciente)
+  - [x] Ativar/pausar regras
+- **Commit final**: `feat(ui): interface de automações` ✅ (branch `feature/ui-automacoes`, PR #9, mergeada em `main`)
 
 ### M10. UI de dashboard (visão geral operacional)
 
