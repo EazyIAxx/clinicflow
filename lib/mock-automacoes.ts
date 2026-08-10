@@ -1,16 +1,32 @@
-import { format, subDays } from "date-fns";
-import { Cake, CalendarClock, FileCheck2, Mail, MessageCircle, PackageX } from "lucide-react";
+import { addDays, format, subDays } from "date-fns";
+import {
+  Cake,
+  CalendarCheck,
+  CalendarClock,
+  FileCheck2,
+  Mail,
+  Megaphone,
+  MessageCircle,
+  PackageX,
+} from "lucide-react";
 
 import type { AutomationStatus } from "@/lib/automacao-status";
 
 export type AutomationTriggerType =
-  "dias_apos_consulta" | "estoque_abaixo_minimo" | "aniversario_paciente" | "orcamento_aprovado";
+  | "dias_apos_consulta"
+  | "estoque_abaixo_minimo"
+  | "aniversario_paciente"
+  | "orcamento_aprovado"
+  | "lembrete_consulta_confirmada"
+  | "promocao";
 
 export type AutomationTrigger =
   | { type: "dias_apos_consulta"; days: number }
   | { type: "estoque_abaixo_minimo" }
   | { type: "aniversario_paciente" }
-  | { type: "orcamento_aprovado" };
+  | { type: "orcamento_aprovado" }
+  | { type: "lembrete_consulta_confirmada"; hours: number }
+  | { type: "promocao"; date: string };
 
 export type AutomationConditionField =
   "categoria_estoque" | "profissional" | "valor_minimo_orcamento";
@@ -65,6 +81,16 @@ export const automationTriggerMeta: Record<
     icon: FileCheck2,
     description: "Quando um orçamento é aprovado pelo paciente",
   },
+  lembrete_consulta_confirmada: {
+    label: "Consulta confirmada",
+    icon: CalendarCheck,
+    description: "X horas antes de uma consulta confirmada",
+  },
+  promocao: {
+    label: "Promoção",
+    icon: Megaphone,
+    description: "Em uma data específica (campanha promocional)",
+  },
 };
 
 export const automationConditionFieldLabels: Record<AutomationConditionField, string> = {
@@ -92,10 +118,11 @@ const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
 /**
  * Gera regras de automação mockadas ancoradas em `referenceDate`, cobrindo os
- * 4 tipos de gatilho, mistura de ativa/pausada e com/sem condição.
+ * 6 tipos de gatilho, mistura de ativa/pausada e com/sem condição.
  */
 export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
   const ago = (days: number) => dateKey(subDays(referenceDate, days));
+  const future = (days: number) => dateKey(addDays(referenceDate, days));
 
   return [
     {
@@ -180,6 +207,34 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       },
       status: "pausada",
       createdAt: ago(75),
+    },
+    {
+      id: "automacao-7",
+      name: "Lembrete de consulta amanhã",
+      description: "Avisa o paciente sobre a consulta confirmada do dia seguinte.",
+      trigger: { type: "lembrete_consulta_confirmada", hours: 24 },
+      condition: null,
+      action: {
+        channel: "whatsapp",
+        message: "Olá {{paciente}}, lembrando que sua consulta é amanhã às {{hora}}. Até lá!",
+      },
+      status: "ativa",
+      createdAt: ago(40),
+      lastTriggeredAt: ago(1),
+    },
+    {
+      id: "automacao-8",
+      name: "Promoção de Dia das Mães",
+      description: "Campanha promocional enviada a todos os pacientes na data escolhida.",
+      trigger: { type: "promocao", date: future(20) },
+      condition: null,
+      action: {
+        channel: "email",
+        message:
+          "Prepare-se para o Dia das Mães! Condições especiais em procedimentos até {{data}}.",
+      },
+      status: "pausada",
+      createdAt: ago(10),
     },
   ];
 }
