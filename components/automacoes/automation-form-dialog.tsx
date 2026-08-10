@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { useState, type FormEvent } from "react";
 
+import { PatientMentionTextarea } from "@/components/automacoes/patient-mention-textarea";
 import { DatePicker } from "@/components/shared/date-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +38,7 @@ import {
   type AutomationTrigger,
   type AutomationTriggerType,
 } from "@/lib/mock-automacoes";
+import type { Patient } from "@/lib/mock-pacientes";
 
 const triggerTypeOrder: AutomationTriggerType[] = [
   "dias_apos_consulta",
@@ -76,12 +78,14 @@ export function AutomationFormDialog({
   onOpenChange,
   rule,
   prefill,
+  patients,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rule?: AutomationRule;
   prefill?: Pick<AutomationRule, "name" | "description" | "trigger" | "condition" | "action">;
+  patients: Patient[];
   onSubmit: (rule: AutomationRule) => void;
 }) {
   const isEditing = Boolean(rule);
@@ -314,16 +318,18 @@ export function AutomationFormDialog({
                 ))}
               </SelectContent>
             </Select>
-            <Textarea
+            <PatientMentionTextarea
               value={actionMessage}
-              onChange={(event) => setActionMessage(event.target.value)}
+              onChange={setActionMessage}
+              patients={patients}
               placeholder="Ex.: Olá {{paciente}}, vamos agendar seu retorno?"
               rows={2}
               required
             />
             <p className="text-muted-foreground text-xs">
-              Use placeholders como {"{{paciente}}"}, {"{{data}}"} e {"{{item}}"} — serão
-              preenchidos automaticamente quando a regra rodar.
+              Digite <strong>{"{{"}</strong> e o nome do paciente para buscar e inserir o nome real
+              (ex.: {"{{G"} → Gabriel). Também aceita placeholders genéricos como {"{{paciente}}"},{" "}
+              {"{{data}}"} e {"{{item}}"}, preenchidos automaticamente quando a regra rodar.
             </p>
           </div>
 

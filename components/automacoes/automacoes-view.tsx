@@ -18,8 +18,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { AutomationStatus } from "@/lib/automacao-status";
 import type { AutomationRule, AutomationTemplate } from "@/lib/mock-automacoes";
+import type { Patient } from "@/lib/mock-pacientes";
 
-export function AutomacoesView({ initialRules }: { initialRules: AutomationRule[] }) {
+export function AutomacoesView({
+  initialRules,
+  patients,
+}: {
+  initialRules: AutomationRule[];
+  patients: Patient[];
+}) {
   const [rules, setRules] = useState<AutomationRule[]>(initialRules);
 
   const [search, setSearch] = useState("");
@@ -111,6 +118,7 @@ export function AutomacoesView({ initialRules }: { initialRules: AutomationRule[
         onOpenChange={setIsFormOpen}
         rule={editingRule}
         prefill={prefill}
+        patients={patients}
         onSubmit={handleRuleSubmit}
       />
 
