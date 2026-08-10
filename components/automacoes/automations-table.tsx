@@ -31,6 +31,12 @@ function triggerLabel(rule: AutomationRule) {
   if (rule.trigger.type === "dias_apos_consulta") {
     return `${meta.label} (${rule.trigger.days}d)`;
   }
+  if (rule.trigger.type === "lembrete_consulta_confirmada") {
+    return `${meta.label} (${rule.trigger.hours}h antes)`;
+  }
+  if (rule.trigger.type === "promocao") {
+    return `${meta.label} (${rule.trigger.date.split("-").reverse().join("/")})`;
+  }
   return meta.label;
 }
 

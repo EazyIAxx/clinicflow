@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { useState, type FormEvent } from "react";
 
+import { DatePicker } from "@/components/shared/date-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +43,8 @@ const triggerTypeOrder: AutomationTriggerType[] = [
   "estoque_abaixo_minimo",
   "aniversario_paciente",
   "orcamento_aprovado",
+  "lembrete_consulta_confirmada",
+  "promocao",
 ];
 
 const NO_CONDITION = "nenhuma";
@@ -56,8 +59,16 @@ const conditionOperatorOrder: AutomationConditionOperator[] = ["igual", "maior_q
 
 const actionChannelOrder: AutomationActionChannel[] = ["whatsapp", "email", "notificacao_interna"];
 
-function buildTrigger(type: AutomationTriggerType, days: number): AutomationTrigger {
-  return type === "dias_apos_consulta" ? { type, days } : { type };
+function buildTrigger(
+  type: AutomationTriggerType,
+  days: number,
+  hours: number,
+  date: Date | undefined,
+): AutomationTrigger {
+  if (type === "dias_apos_consulta") return { type, days };
+  if (type === "lembrete_consulta_confirmada") return { type, hours };
+  if (type === "promocao") return { type, date: format(date ?? new Date(), "yyyy-MM-dd") };
+  return { type };
 }
 
 export function AutomationFormDialog({
@@ -83,6 +94,12 @@ export function AutomationFormDialog({
   );
   const [triggerDays, setTriggerDays] = useState(
     base?.trigger.type === "dias_apos_consulta" ? base.trigger.days : 30,
+  );
+  const [triggerHours, setTriggerHours] = useState(
+    base?.trigger.type === "lembrete_consulta_confirmada" ? base.trigger.hours : 24,
+  );
+  const [triggerDate, setTriggerDate] = useState<Date | undefined>(
+    base?.trigger.type === "promocao" ? new Date(`${base.trigger.date}T00:00:00`) : undefined,
   );
   const [conditionField, setConditionField] = useState<
     AutomationConditionField | typeof NO_CONDITION
@@ -111,7 +128,7 @@ export function AutomationFormDialog({
       id: rule?.id ?? crypto.randomUUID(),
       name,
       description: description || undefined,
-      trigger: buildTrigger(triggerType, triggerDays),
+      trigger: buildTrigger(triggerType, triggerDays, triggerHours, triggerDate),
       condition,
       action,
       status: rule?.status ?? "ativa",
@@ -192,6 +209,27 @@ export function AutomationFormDialog({
                   onChange={(event) => setTriggerDays(Number(event.target.value))}
                   className="w-24"
                 />
+              </div>
+            )}
+            {triggerType === "lembrete_consulta_confirmada" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="automation-trigger-hours" className="text-xs">
+                  Horas antes da consulta
+                </Label>
+                <Input
+                  id="automation-trigger-hours"
+                  type="number"
+                  min={1}
+                  value={triggerHours}
+                  onChange={(event) => setTriggerHours(Number(event.target.value))}
+                  className="w-24"
+                />
+              </div>
+            )}
+            {triggerType === "promocao" && (
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-xs">Data da campanha</Label>
+                <DatePicker date={triggerDate} onDateChange={setTriggerDate} className="w-full" />
               </div>
             )}
           </div>
