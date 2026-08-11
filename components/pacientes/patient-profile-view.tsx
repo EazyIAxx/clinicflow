@@ -91,6 +91,23 @@ export function PatientProfileView({
           </Card>
           <Card>
             <CardHeader>
+              <CardTitle>Plano de saúde</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col text-sm">
+              {patient.healthInsuranceProvider ? (
+                <>
+                  <DataRow label="Operadora" value={patient.healthInsuranceProvider} />
+                  <DataRow label="Plano" value={patient.healthInsurancePlan ?? "—"} />
+                  <DataRow label="Carteirinha" value={patient.healthInsuranceCardNumber ?? "—"} />
+                  <DataRow label="Validade" value={formatDate(patient.healthInsuranceValidUntil)} />
+                </>
+              ) : (
+                <p className="text-muted-foreground">Paciente particular (sem convênio).</p>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
               <CardTitle>Observações</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
