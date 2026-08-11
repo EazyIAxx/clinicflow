@@ -10,6 +10,7 @@ import { ChargesToolbar } from "@/components/financeiro/charges-toolbar";
 import { ExpenseFormDialog } from "@/components/financeiro/expense-form-dialog";
 import { ExpensesTable } from "@/components/financeiro/expenses-table";
 import { ExpensesToolbar } from "@/components/financeiro/expenses-toolbar";
+import { PatientPaymentsChart } from "@/components/financeiro/patient-payments-chart";
 import { PaymentDialog } from "@/components/financeiro/payment-dialog";
 import {
   AlertDialog,
@@ -21,7 +22,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ChargeDisplayStatus } from "@/lib/finance-status";
 import {
@@ -29,6 +44,7 @@ import {
   getChargeDisplayStatus,
   getChargesStatusBreakdown,
   getFinanceStats,
+  getPatientPaymentsTrend,
   type Charge,
   type Expense,
 } from "@/lib/mock-financeiro";
@@ -52,6 +68,7 @@ export function FinanceiroView({
   const [chargeSearch, setChargeSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ChargeDisplayStatus | "todos">("todos");
   const [patientFilter, setPatientFilter] = useState("todos");
+  const [cashflowPatientId, setCashflowPatientId] = useState("todos");
 
   const [isChargeFormOpen, setIsChargeFormOpen] = useState(false);
   const [chargeFormKey, setChargeFormKey] = useState(0);
@@ -90,6 +107,8 @@ export function FinanceiroView({
   const stats = getFinanceStats({ charges, expenses, referenceDate });
   const cashflowTrend = getCashflowTrend(charges, expenses, referenceDate, 14);
   const chargesBreakdown = getChargesStatusBreakdown(charges, referenceDate);
+  const patientPaymentsTrend =
+    cashflowPatientId === "todos" ? null : getPatientPaymentsTrend(charges, cashflowPatientId);
 
   function openNewChargeDialog() {
     setEditingCharge(undefined);
@@ -231,10 +250,42 @@ export function FinanceiroView({
             <Card>
               <CardHeader>
                 <CardTitle>Fluxo de caixa</CardTitle>
-                <CardDescription>Receita paga x despesas nos últimos 14 dias.</CardDescription>
+                <CardDescription>
+                  {cashflowPatientId === "todos"
+                    ? "Receita paga x despesas nos últimos 14 dias."
+                    : `Pagamentos de ${patientsById[cashflowPatientId]?.name ?? "paciente"}.`}
+                </CardDescription>
+                <CardAction>
+                  <Select
+                    value={cashflowPatientId}
+                    onValueChange={(value) => setCashflowPatientId(value as string)}
+                  >
+                    <SelectTrigger className="w-32 sm:w-44">
+                      <SelectValue>
+                        {(value: string) =>
+                          value === "todos"
+                            ? "Todos os pacientes"
+                            : (patientsById[value]?.name ?? value)
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os pacientes</SelectItem>
+                      {patients.map((patient) => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {patient.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardAction>
               </CardHeader>
               <CardContent>
-                <CashflowChart trend={cashflowTrend} />
+                {cashflowPatientId === "todos" ? (
+                  <CashflowChart trend={cashflowTrend} />
+                ) : (
+                  <PatientPaymentsChart payments={patientPaymentsTrend ?? []} />
+                )}
               </CardContent>
             </Card>
             <Card>
