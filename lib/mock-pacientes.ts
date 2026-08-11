@@ -1,4 +1,4 @@
-import { format, subDays } from "date-fns";
+import { addDays, format, subDays } from "date-fns";
 
 import { professionals } from "@/lib/mock-agenda";
 import type { PatientStatus } from "@/lib/patient-status";
@@ -16,6 +16,11 @@ export type Patient = {
   notes?: string;
   createdAt: string; // yyyy-MM-dd
   lastVisitAt?: string; // yyyy-MM-dd
+  /** Ausência de operadora = paciente particular, sem convênio. */
+  healthInsuranceProvider?: string;
+  healthInsurancePlan?: string;
+  healthInsuranceCardNumber?: string;
+  healthInsuranceValidUntil?: string; // yyyy-MM-dd
 };
 
 export function responsibleProfessionalName(patient: Pick<Patient, "responsibleProfessionalId">) {
@@ -39,6 +44,7 @@ const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
  */
 export function getMockPatients(referenceDate: Date): Patient[] {
   const ago = (days: number) => dateKey(subDays(referenceDate, days));
+  const future = (days: number) => dateKey(addDays(referenceDate, days));
 
   return [
     {
@@ -53,6 +59,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       status: "ativo",
       createdAt: ago(400),
       lastVisitAt: ago(5),
+      healthInsuranceProvider: "Unimed",
+      healthInsurancePlan: "Nacional Especial",
+      healthInsuranceCardNumber: "0 123 4567 8901234 5",
+      healthInsuranceValidUntil: future(420),
     },
     {
       id: "pac-2",
@@ -79,6 +89,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       status: "ativo",
       createdAt: ago(15),
       lastVisitAt: ago(15),
+      healthInsuranceProvider: "SulAmérica",
+      healthInsurancePlan: "Direto Executivo",
+      healthInsuranceCardNumber: "88 5544 3322 1100",
+      healthInsuranceValidUntil: future(200),
     },
     {
       id: "pac-4",
@@ -91,6 +105,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       notes: "Hipertenso, faz acompanhamento contínuo.",
       createdAt: ago(600),
       lastVisitAt: ago(2),
+      healthInsuranceProvider: "Bradesco Saúde",
+      healthInsurancePlan: "Top Nacional",
+      healthInsuranceCardNumber: "77 6655 4433 2211",
+      healthInsuranceValidUntil: future(90),
     },
     {
       id: "pac-5",
@@ -114,6 +132,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       responsibleProfessionalId: "prof-2",
       status: "ativo",
       createdAt: ago(8),
+      healthInsuranceProvider: "Amil",
+      healthInsurancePlan: "Amil One Black",
+      healthInsuranceCardNumber: "44 3322 1100 9988",
+      healthInsuranceValidUntil: future(300),
     },
     {
       id: "pac-7",
@@ -139,6 +161,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       notes: "Alérgico a dipirona.",
       createdAt: ago(300),
       lastVisitAt: ago(1),
+      healthInsuranceProvider: "Hapvida",
+      healthInsurancePlan: "Hapvida Premium",
+      healthInsuranceCardNumber: "11 2233 4455 6677",
+      healthInsuranceValidUntil: future(150),
     },
     {
       id: "pac-9",
@@ -162,6 +188,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       status: "ativo",
       createdAt: ago(25),
       lastVisitAt: ago(25),
+      healthInsuranceProvider: "Unimed",
+      healthInsurancePlan: "Unimed Intercâmbio",
+      healthInsuranceCardNumber: "0 987 6543 2109876 1",
+      healthInsuranceValidUntil: future(60),
     },
     {
       id: "pac-11",
@@ -175,6 +205,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       status: "ativo",
       createdAt: ago(150),
       lastVisitAt: ago(10),
+      healthInsuranceProvider: "SulAmérica",
+      healthInsurancePlan: "Clássico",
+      healthInsuranceCardNumber: "99 8877 6655 4433",
+      healthInsuranceValidUntil: future(250),
     },
     {
       id: "pac-12",
@@ -197,6 +231,10 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       status: "ativo",
       createdAt: ago(60),
       lastVisitAt: ago(6),
+      healthInsuranceProvider: "Bradesco Saúde",
+      healthInsurancePlan: "Nacional Flex",
+      healthInsuranceCardNumber: "22 1100 9988 7766",
+      healthInsuranceValidUntil: future(500),
     },
     {
       id: "pac-14",

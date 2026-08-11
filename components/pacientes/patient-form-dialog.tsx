@@ -56,6 +56,20 @@ export function PatientFormDialog({
     patient?.responsibleProfessionalId ?? NONE_PROFESSIONAL,
   );
   const [status, setStatus] = useState<PatientStatus>(patient?.status ?? "ativo");
+  const [healthInsuranceProvider, setHealthInsuranceProvider] = useState(
+    patient?.healthInsuranceProvider ?? "",
+  );
+  const [healthInsurancePlan, setHealthInsurancePlan] = useState(
+    patient?.healthInsurancePlan ?? "",
+  );
+  const [healthInsuranceCardNumber, setHealthInsuranceCardNumber] = useState(
+    patient?.healthInsuranceCardNumber ?? "",
+  );
+  const [healthInsuranceValidUntil, setHealthInsuranceValidUntil] = useState<Date | undefined>(
+    patient?.healthInsuranceValidUntil
+      ? new Date(`${patient.healthInsuranceValidUntil}T00:00:00`)
+      : undefined,
+  );
   const [notes, setNotes] = useState(patient?.notes ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -76,6 +90,12 @@ export function PatientFormDialog({
       responsibleProfessionalId:
         responsibleProfessionalId === NONE_PROFESSIONAL ? undefined : responsibleProfessionalId,
       status,
+      healthInsuranceProvider: healthInsuranceProvider || undefined,
+      healthInsurancePlan: healthInsurancePlan || undefined,
+      healthInsuranceCardNumber: healthInsuranceCardNumber || undefined,
+      healthInsuranceValidUntil: healthInsuranceValidUntil
+        ? format(healthInsuranceValidUntil, "yyyy-MM-dd")
+        : undefined,
       notes: notes || undefined,
       createdAt: patient?.createdAt ?? now,
       lastVisitAt: patient?.lastVisitAt,
@@ -200,13 +220,66 @@ export function PatientFormDialog({
             </div>
           </div>
 
+          <div className="flex flex-col gap-2 rounded-md border p-3">
+            <Label>Plano de saúde (opcional)</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  htmlFor="patient-insurance-provider"
+                  className="text-muted-foreground text-xs"
+                >
+                  Operadora
+                </Label>
+                <Input
+                  id="patient-insurance-provider"
+                  value={healthInsuranceProvider}
+                  onChange={(event) => setHealthInsuranceProvider(event.target.value)}
+                  placeholder="Ex.: Unimed"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="patient-insurance-plan" className="text-muted-foreground text-xs">
+                  Plano
+                </Label>
+                <Input
+                  id="patient-insurance-plan"
+                  value={healthInsurancePlan}
+                  onChange={(event) => setHealthInsurancePlan(event.target.value)}
+                  placeholder="Ex.: Nacional Especial"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="patient-insurance-card" className="text-muted-foreground text-xs">
+                  Carteirinha
+                </Label>
+                <Input
+                  id="patient-insurance-card"
+                  value={healthInsuranceCardNumber}
+                  onChange={(event) => setHealthInsuranceCardNumber(event.target.value)}
+                  placeholder="Número"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-muted-foreground text-xs">Validade</Label>
+                <DatePicker
+                  date={healthInsuranceValidUntil}
+                  onDateChange={setHealthInsuranceValidUntil}
+                  placeholder="Selecionar"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="patient-notes">Observações</Label>
             <Textarea
               id="patient-notes"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Alergias, convênio, preferências de horário..."
+              placeholder="Alergias, preferências de horário..."
               rows={3}
             />
           </div>
