@@ -34,3 +34,27 @@ export const chargeStatusMeta: Record<ChargeDisplayStatus, StatusMeta> = {
     badgeClassName: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400",
   },
 };
+
+export type ExpenseStatus = "pendente" | "pago";
+/** Estado exibido na UI — inclui "atrasado", que é calculado, não gravado. */
+export type ExpenseDisplayStatus = ExpenseStatus | "atrasado";
+
+export const expenseStatusOrder: ExpenseStatus[] = ["pendente", "pago"];
+
+export const expenseStatusMeta: Record<ExpenseDisplayStatus, StatusMeta> = {
+  pendente: {
+    label: "Pendente",
+    icon: Clock,
+    badgeClassName: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400",
+  },
+  pago: {
+    label: "Paga",
+    icon: CheckCircle2,
+    badgeClassName: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-400",
+  },
+  atrasado: {
+    label: "Atrasada",
+    icon: AlertTriangle,
+    badgeClassName: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400",
+  },
+};

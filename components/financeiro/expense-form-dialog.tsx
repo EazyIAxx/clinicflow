@@ -22,7 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { expenseCategories, type Expense } from "@/lib/mock-financeiro";
+import { expenseStatusMeta, expenseStatusOrder, type ExpenseStatus } from "@/lib/finance-status";
+import { expenseCategories, type Expense, type ExpenseRecurrence } from "@/lib/mock-financeiro";
+
+const NOT_RECURRING = "nao_recorrente";
 
 export function ExpenseFormDialog({
   open,
@@ -40,8 +43,12 @@ export function ExpenseFormDialog({
   const [description, setDescription] = useState(expense?.description ?? "");
   const [category, setCategory] = useState(expense?.category ?? expenseCategories[0]);
   const [amount, setAmount] = useState(expense?.amount ?? 0);
-  const [date, setDate] = useState<Date | undefined>(
-    expense?.date ? new Date(`${expense.date}T00:00:00`) : new Date(),
+  const [dueDate, setDueDate] = useState<Date | undefined>(
+    expense?.dueDate ? new Date(`${expense.dueDate}T00:00:00`) : new Date(),
+  );
+  const [status, setStatus] = useState<ExpenseStatus>(expense?.status ?? "pendente");
+  const [recurrence, setRecurrence] = useState<ExpenseRecurrence | typeof NOT_RECURRING>(
+    expense?.recurrence ?? NOT_RECURRING,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,7 +61,12 @@ export function ExpenseFormDialog({
       description,
       category,
       amount,
-      date: date ? format(date, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      dueDate: dueDate ? format(dueDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+      status,
+      paidAt: expense?.paidAt,
+      isRecurring: recurrence !== NOT_RECURRING,
+      recurrence: recurrence === NOT_RECURRING ? undefined : recurrence,
+      createdAt: expense?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
     });
     onOpenChange(false);
   }
@@ -114,8 +126,54 @@ export function ExpenseFormDialog({
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label>Data</Label>
-              <DatePicker date={date} onDateChange={setDate} className="w-full" />
+              <Label>Vencimento</Label>
+              <DatePicker date={dueDate} onDateChange={setDueDate} className="w-full" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label>Status</Label>
+              <Select value={status} onValueChange={(value) => setStatus(value as ExpenseStatus)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) => expenseStatusMeta[value as ExpenseStatus].label}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {expenseStatusOrder.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {expenseStatusMeta[option].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Recorrência</Label>
+              <Select
+                value={recurrence}
+                onValueChange={(value) =>
+                  setRecurrence(value as ExpenseRecurrence | typeof NOT_RECURRING)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === NOT_RECURRING
+                        ? "Não recorrente"
+                        : value === "mensal"
+                          ? "Mensal"
+                          : "Anual"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NOT_RECURRING}>Não recorrente</SelectItem>
+                  <SelectItem value="mensal">Mensal</SelectItem>
+                  <SelectItem value="anual">Anual</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -10,7 +10,12 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import type { ChargeDisplayStatus, ChargeStatus } from "@/lib/finance-status";
+import type {
+  ChargeDisplayStatus,
+  ChargeStatus,
+  ExpenseDisplayStatus,
+  ExpenseStatus,
+} from "@/lib/finance-status";
 
 export type ChargeSourceType = "orcamento" | "consulta";
 export type PaymentMethod = "dinheiro" | "cartao_credito" | "cartao_debito" | "pix" | "boleto";
@@ -32,12 +37,19 @@ export type Charge = {
 export type ExpenseCategory =
   "Aluguel" | "Salários" | "Fornecedores" | "Marketing" | "Utilidades" | "Outros";
 
+export type ExpenseRecurrence = "mensal" | "anual";
+
 export type Expense = {
   id: string;
   description: string;
   category: ExpenseCategory;
   amount: number;
-  date: string; // yyyy-MM-dd
+  dueDate: string; // yyyy-MM-dd
+  status: ExpenseStatus;
+  paidAt?: string; // yyyy-MM-dd
+  isRecurring?: boolean;
+  recurrence?: ExpenseRecurrence;
+  createdAt: string; // yyyy-MM-dd
 };
 
 export const expenseCategories: ExpenseCategory[] = [
@@ -74,6 +86,20 @@ export function getChargeDisplayStatus(
     }
   }
   return charge.status;
+}
+
+/** "Atrasada" é calculada (pendente + vencimento no passado), nunca gravada. */
+export function getExpenseDisplayStatus(
+  expense: Pick<Expense, "status" | "dueDate">,
+  referenceDate: Date,
+): ExpenseDisplayStatus {
+  if (expense.status === "pendente") {
+    const dueDate = new Date(`${expense.dueDate}T00:00:00`);
+    if (differenceInCalendarDays(referenceDate, dueDate) > 0) {
+      return "atrasado";
+    }
+  }
+  return expense.status;
 }
 
 const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
@@ -225,10 +251,13 @@ export function getMockCharges(referenceDate: Date): Charge[] {
 
 /**
  * Gera despesas mockadas ancoradas em `referenceDate`, cobrindo as
- * principais categorias de custo fixo/variável da clínica.
+ * principais categorias de custo fixo/variável da clínica — a maioria já
+ * paga (histórico), mais algumas pendentes/atrasadas e recorrentes pra
+ * demonstrar o controle de contas a pagar.
  */
 export function getMockExpenses(referenceDate: Date): Expense[] {
   const ago = (days: number) => dateKey(subDays(referenceDate, days));
+  const future = (days: number) => dateKey(addDays(referenceDate, days));
 
   return [
     {
@@ -236,56 +265,121 @@ export function getMockExpenses(referenceDate: Date): Expense[] {
       description: "Aluguel do consultório",
       category: "Aluguel",
       amount: 3500,
-      date: ago(5),
+      dueDate: ago(5),
+      status: "pago",
+      paidAt: ago(5),
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(35),
     },
     {
       id: "expense-2",
       description: "Folha de pagamento - equipe",
       category: "Salários",
       amount: 12000,
-      date: ago(3),
+      dueDate: ago(3),
+      status: "pago",
+      paidAt: ago(3),
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(33),
     },
     {
       id: "expense-3",
       description: "Compra de materiais - Farma Distribuidora",
       category: "Fornecedores",
       amount: 890,
-      date: ago(10),
+      dueDate: ago(10),
+      status: "pago",
+      paidAt: ago(10),
+      createdAt: ago(12),
     },
     {
       id: "expense-4",
       description: "Anúncios Instagram e Google Ads",
       category: "Marketing",
       amount: 600,
-      date: ago(7),
+      dueDate: ago(7),
+      status: "pago",
+      paidAt: ago(7),
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(37),
     },
     {
       id: "expense-5",
       description: "Conta de energia elétrica",
       category: "Utilidades",
       amount: 420,
-      date: ago(8),
+      dueDate: ago(8),
+      status: "pago",
+      paidAt: ago(8),
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(38),
     },
     {
       id: "expense-6",
       description: "Conta de água",
       category: "Utilidades",
       amount: 180,
-      date: ago(8),
+      dueDate: ago(8),
+      status: "pago",
+      paidAt: ago(8),
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(38),
     },
     {
       id: "expense-7",
       description: "Manutenção de equipamentos",
       category: "Outros",
       amount: 350,
-      date: ago(15),
+      dueDate: ago(15),
+      status: "pago",
+      paidAt: ago(15),
+      createdAt: ago(17),
     },
     {
       id: "expense-8",
       description: "Compra de materiais - MedSupply",
       category: "Fornecedores",
       amount: 720,
-      date: ago(20),
+      dueDate: ago(20),
+      status: "pago",
+      paidAt: ago(20),
+      createdAt: ago(22),
+    },
+    {
+      id: "expense-9",
+      description: "Aluguel do consultório",
+      category: "Aluguel",
+      amount: 3500,
+      dueDate: future(20),
+      status: "pendente",
+      isRecurring: true,
+      recurrence: "mensal",
+      createdAt: ago(2),
+    },
+    {
+      id: "expense-10",
+      description: "Manutenção do ar-condicionado",
+      category: "Outros",
+      amount: 480,
+      dueDate: ago(5),
+      status: "pendente",
+      createdAt: ago(9),
+    },
+    {
+      id: "expense-11",
+      description: "Assinatura do sistema de gestão",
+      category: "Fornecedores",
+      amount: 2400,
+      dueDate: future(45),
+      status: "pendente",
+      isRecurring: true,
+      recurrence: "anual",
+      createdAt: ago(1),
     },
   ];
 }
@@ -307,7 +401,7 @@ export function getCashflowTrend(
       .filter((charge) => charge.status === "pago" && charge.paidAt === key)
       .reduce((sum, charge) => sum + charge.amount, 0);
     const expense = expenses
-      .filter((item) => item.date === key)
+      .filter((item) => item.status === "pago" && item.paidAt === key)
       .reduce((sum, item) => sum + item.amount, 0);
 
     return { date: key, label: format(day, "dd/MM", { locale: ptBR }), revenue, expense };
@@ -348,6 +442,15 @@ export function getChargesStatusBreakdown(charges: Charge[], referenceDate: Date
   }));
 }
 
+export function getExpensesByCategory(expenses: Expense[]) {
+  return expenseCategories.map((category) => ({
+    category,
+    total: expenses
+      .filter((expense) => expense.category === category)
+      .reduce((sum, expense) => sum + expense.amount, 0),
+  }));
+}
+
 export function getFinanceStats({
   charges,
   expenses,
@@ -381,7 +484,12 @@ export function getFinanceStats({
   );
 
   const monthExpenses = expenses
-    .filter((expense) => isSameMonth(new Date(`${expense.date}T00:00:00`), referenceDate))
+    .filter(
+      (expense) =>
+        expense.status === "pago" &&
+        expense.paidAt &&
+        isSameMonth(new Date(`${expense.paidAt}T00:00:00`), referenceDate),
+    )
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   return {
