@@ -40,9 +40,16 @@ export type AutomationCondition = {
 
 export type AutomationActionChannel = "whatsapp" | "email" | "notificacao_interna";
 
+export type AutomationFollowUp = {
+  delayDays: number;
+  message: string;
+};
+
 export type AutomationAction = {
   channel: AutomationActionChannel;
   message: string;
+  sendTime?: string; // "HH:mm" — horário do dia em que a mensagem é enviada
+  followUp?: AutomationFollowUp;
 };
 
 export type AutomationRule = {
@@ -135,6 +142,11 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
         channel: "whatsapp",
         message:
           "Olá {{paciente}}! Já faz um mês da sua última consulta. Que tal agendar um retorno?",
+        sendTime: "09:00",
+        followUp: {
+          delayDays: 5,
+          message: "Oi {{paciente}}, só passando pra lembrar do seu retorno. Vamos marcar?",
+        },
       },
       status: "ativa",
       createdAt: ago(60),
@@ -149,6 +161,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "notificacao_interna",
         message: "O item {{item}} está abaixo do estoque mínimo. Reabastecer.",
+        sendTime: "08:00",
       },
       status: "ativa",
       createdAt: ago(90),
@@ -163,6 +176,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "whatsapp",
         message: "Feliz aniversário, {{paciente}}! A equipe da clínica deseja um ótimo dia. 🎉",
+        sendTime: "09:00",
       },
       status: "ativa",
       createdAt: ago(120),
@@ -178,6 +192,11 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "email",
         message: "Seu orçamento foi aprovado! Segue o link de pagamento: {{link_pagamento}}",
+        sendTime: "10:00",
+        followUp: {
+          delayDays: 3,
+          message: "Olá {{paciente}}, ainda dá tempo de aproveitar seu orçamento aprovado!",
+        },
       },
       status: "ativa",
       createdAt: ago(45),
@@ -191,6 +210,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "whatsapp",
         message: "Olá {{paciente}}, vamos agendar sua próxima sessão de fisioterapia?",
+        sendTime: "09:00",
       },
       status: "pausada",
       createdAt: ago(20),
@@ -204,6 +224,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "notificacao_interna",
         message: "O item {{item}} está abaixo do estoque mínimo. Reabastecer.",
+        sendTime: "08:00",
       },
       status: "pausada",
       createdAt: ago(75),
@@ -217,6 +238,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
       action: {
         channel: "whatsapp",
         message: "Olá {{paciente}}, lembrando que sua consulta é amanhã às {{hora}}. Até lá!",
+        sendTime: "18:00",
       },
       status: "ativa",
       createdAt: ago(40),
@@ -232,6 +254,7 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
         channel: "email",
         message:
           "Prepare-se para o Dia das Mães! Condições especiais em procedimentos até {{data}}.",
+        sendTime: "10:00",
       },
       status: "pausada",
       createdAt: ago(10),
@@ -262,6 +285,7 @@ export const automationTemplates: AutomationTemplate[] = [
         channel: "whatsapp",
         message:
           "Olá {{paciente}}! Já faz um tempo da sua última consulta. Vamos agendar um retorno?",
+        sendTime: "09:00",
       },
     }),
   },
@@ -278,6 +302,7 @@ export const automationTemplates: AutomationTemplate[] = [
       action: {
         channel: "notificacao_interna",
         message: "O item {{item}} está abaixo do estoque mínimo. Reabastecer.",
+        sendTime: "09:00",
       },
     }),
   },
@@ -294,6 +319,7 @@ export const automationTemplates: AutomationTemplate[] = [
       action: {
         channel: "whatsapp",
         message: "Feliz aniversário, {{paciente}}! A equipe da clínica deseja um ótimo dia. 🎉",
+        sendTime: "09:00",
       },
     }),
   },

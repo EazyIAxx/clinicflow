@@ -1,4 +1,4 @@
-import { ArrowRight, MoreHorizontal, Pencil, Power, Trash2 } from "lucide-react";
+import { ArrowRight, MoreHorizontal, Pencil, Power, Repeat, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,14 @@ export function AutomationsTable({
                     <Badge variant="outline">
                       <ActionIcon />
                       {automationActionChannelMeta[rule.action.channel].label}
+                      {rule.action.sendTime && ` · ${rule.action.sendTime}`}
                     </Badge>
+                    {rule.action.followUp && (
+                      <Badge variant="outline">
+                        <Repeat />
+                        follow-up em {rule.action.followUp.delayDays}d
+                      </Badge>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
