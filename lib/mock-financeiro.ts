@@ -314,6 +314,25 @@ export function getCashflowTrend(
   });
 }
 
+/**
+ * Histórico de pagamentos de um paciente específico, um por data real de
+ * pagamento — não é limitado a uma janela de dias como `getCashflowTrend`,
+ * já que os pagamentos de um paciente podem estar espalhados por meses.
+ */
+export function getPatientPaymentsTrend(charges: Charge[], patientId: string) {
+  return charges
+    .filter(
+      (charge): charge is Charge & { paidAt: string } =>
+        charge.patientId === patientId && charge.status === "pago" && Boolean(charge.paidAt),
+    )
+    .sort((a, b) => (a.paidAt < b.paidAt ? -1 : 1))
+    .map((charge) => ({
+      date: charge.paidAt,
+      label: format(new Date(`${charge.paidAt}T00:00:00`), "dd/MM", { locale: ptBR }),
+      amount: charge.amount,
+    }));
+}
+
 const chargeDisplayStatusOrder: ChargeDisplayStatus[] = [
   "pendente",
   "atrasado",
