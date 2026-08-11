@@ -34,6 +34,7 @@ import {
   type AutomationCondition,
   type AutomationConditionField,
   type AutomationConditionOperator,
+  type AutomationFollowUp,
   type AutomationRule,
   type AutomationTrigger,
   type AutomationTriggerType,
@@ -50,6 +51,8 @@ const triggerTypeOrder: AutomationTriggerType[] = [
 ];
 
 const NO_CONDITION = "nenhuma";
+const NO_FOLLOWUP = "sem_followup";
+const WITH_FOLLOWUP = "com_followup";
 
 const conditionFieldOrder: AutomationConditionField[] = [
   "categoria_estoque",
@@ -116,6 +119,12 @@ export function AutomationFormDialog({
     base?.action.channel ?? "whatsapp",
   );
   const [actionMessage, setActionMessage] = useState(base?.action.message ?? "");
+  const [sendTime, setSendTime] = useState(base?.action.sendTime ?? "09:00");
+  const [followUpToggle, setFollowUpToggle] = useState<typeof NO_FOLLOWUP | typeof WITH_FOLLOWUP>(
+    base?.action.followUp ? WITH_FOLLOWUP : NO_FOLLOWUP,
+  );
+  const [followUpDelayDays, setFollowUpDelayDays] = useState(base?.action.followUp?.delayDays ?? 3);
+  const [followUpMessage, setFollowUpMessage] = useState(base?.action.followUp?.message ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -126,7 +135,16 @@ export function AutomationFormDialog({
       conditionField === NO_CONDITION
         ? null
         : { field: conditionField, operator: conditionOperator, value: conditionValue };
-    const action: AutomationAction = { channel: actionChannel, message: actionMessage };
+    const followUp: AutomationFollowUp | undefined =
+      followUpToggle === WITH_FOLLOWUP
+        ? { delayDays: followUpDelayDays, message: followUpMessage }
+        : undefined;
+    const action: AutomationAction = {
+      channel: actionChannel,
+      message: actionMessage,
+      sendTime,
+      followUp,
+    };
 
     onSubmit({
       id: rule?.id ?? crypto.randomUUID(),
@@ -299,25 +317,42 @@ export function AutomationFormDialog({
 
           <div className="flex flex-col gap-2 rounded-md border p-3">
             <Label>Ação</Label>
-            <Select
-              value={actionChannel}
-              onValueChange={(value) => setActionChannel(value as AutomationActionChannel)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue>
-                  {(value: string) =>
-                    automationActionChannelMeta[value as AutomationActionChannel].label
-                  }
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {actionChannelOrder.map((channel) => (
-                  <SelectItem key={channel} value={channel}>
-                    {automationActionChannelMeta[channel].label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-2">
+              <Select
+                value={actionChannel}
+                onValueChange={(value) => setActionChannel(value as AutomationActionChannel)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      automationActionChannelMeta[value as AutomationActionChannel].label
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {actionChannelOrder.map((channel) => (
+                    <SelectItem key={channel} value={channel}>
+                      {automationActionChannelMeta[channel].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="automation-send-time" className="sr-only">
+                  Horário de envio
+                </Label>
+                <Input
+                  id="automation-send-time"
+                  type="time"
+                  value={sendTime}
+                  onChange={(event) => setSendTime(event.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Horário do dia em que a mensagem é enviada.
+            </p>
             <PatientMentionTextarea
               value={actionMessage}
               onChange={setActionMessage}
@@ -331,6 +366,55 @@ export function AutomationFormDialog({
               (ex.: {"{{G"} → Gabriel). Também aceita placeholders genéricos como {"{{paciente}}"},{" "}
               {"{{data}}"} e {"{{item}}"}, preenchidos automaticamente quando a regra rodar.
             </p>
+          </div>
+
+          <div className="flex flex-col gap-2 rounded-md border p-3">
+            <Label>Follow-up (opcional)</Label>
+            <Select
+              value={followUpToggle}
+              onValueChange={(value) =>
+                setFollowUpToggle(value as typeof NO_FOLLOWUP | typeof WITH_FOLLOWUP)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue>
+                  {(value: string) =>
+                    value === NO_FOLLOWUP
+                      ? "Nenhum — enviar só a mensagem principal"
+                      : "Enviar um follow-up depois"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_FOLLOWUP}>Nenhum — enviar só a mensagem principal</SelectItem>
+                <SelectItem value={WITH_FOLLOWUP}>Enviar um follow-up depois</SelectItem>
+              </SelectContent>
+            </Select>
+            {followUpToggle === WITH_FOLLOWUP && (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="automation-followup-days" className="text-xs">
+                    Dias após o envio principal
+                  </Label>
+                  <Input
+                    id="automation-followup-days"
+                    type="number"
+                    min={1}
+                    value={followUpDelayDays}
+                    onChange={(event) => setFollowUpDelayDays(Number(event.target.value))}
+                    className="w-24"
+                  />
+                </div>
+                <PatientMentionTextarea
+                  value={followUpMessage}
+                  onChange={setFollowUpMessage}
+                  patients={patients}
+                  placeholder="Ex.: Oi {{paciente}}, ainda dá tempo de agendar!"
+                  rows={2}
+                  required
+                />
+              </>
+            )}
           </div>
 
           <DialogFooter>
