@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 
 import { CashflowChart } from "@/components/financeiro/cashflow-chart";
@@ -8,6 +9,7 @@ import { ChargesStatusChart } from "@/components/financeiro/charges-status-chart
 import { ChargesTable } from "@/components/financeiro/charges-table";
 import { ChargesToolbar } from "@/components/financeiro/charges-toolbar";
 import { ExpenseFormDialog } from "@/components/financeiro/expense-form-dialog";
+import { ExpensesByCategoryChart } from "@/components/financeiro/expenses-by-category-chart";
 import { ExpensesTable } from "@/components/financeiro/expenses-table";
 import { ExpensesToolbar } from "@/components/financeiro/expenses-toolbar";
 import { PatientPaymentsChart } from "@/components/financeiro/patient-payments-chart";
@@ -38,11 +40,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ChargeDisplayStatus } from "@/lib/finance-status";
+import type { ChargeDisplayStatus, ExpenseDisplayStatus } from "@/lib/finance-status";
 import {
   getCashflowTrend,
   getChargeDisplayStatus,
   getChargesStatusBreakdown,
+  getExpenseDisplayStatus,
+  getExpensesByCategory,
   getFinanceStats,
   getPatientPaymentsTrend,
   type Charge,
@@ -81,6 +85,9 @@ export function FinanceiroView({
   const [chargeToDelete, setChargeToDelete] = useState<Charge | null>(null);
 
   const [expenseSearch, setExpenseSearch] = useState("");
+  const [expenseStatusFilter, setExpenseStatusFilter] = useState<ExpenseDisplayStatus | "todos">(
+    "todos",
+  );
   const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
   const [expenseFormKey, setExpenseFormKey] = useState(0);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
@@ -100,13 +107,18 @@ export function FinanceiroView({
     return matchesSearch && matchesStatus && matchesPatient;
   });
 
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.description.toLowerCase().includes(expenseSearch.toLowerCase()),
-  );
+  const filteredExpenses = expenses.filter((expense) => {
+    const matchesSearch = expense.description.toLowerCase().includes(expenseSearch.toLowerCase());
+    const matchesStatus =
+      expenseStatusFilter === "todos" ||
+      getExpenseDisplayStatus(expense, referenceDate) === expenseStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const stats = getFinanceStats({ charges, expenses, referenceDate });
   const cashflowTrend = getCashflowTrend(charges, expenses, referenceDate, 14);
   const chargesBreakdown = getChargesStatusBreakdown(charges, referenceDate);
+  const expensesByCategory = getExpensesByCategory(expenses);
   const patientPaymentsTrend =
     cashflowPatientId === "todos" ? null : getPatientPaymentsTrend(charges, cashflowPatientId);
 
@@ -170,6 +182,16 @@ export function FinanceiroView({
         ? prev.map((existing) => (existing.id === expense.id ? expense : existing))
         : [...prev, expense];
     });
+  }
+
+  function handleMarkExpenseAsPaid(expense: Expense) {
+    setExpenses((prev) =>
+      prev.map((existing) =>
+        existing.id === expense.id
+          ? { ...existing, status: "pago", paidAt: format(new Date(), "yyyy-MM-dd") }
+          : existing,
+      ),
+    );
   }
 
   function handleConfirmDeleteExpense() {
@@ -297,6 +319,15 @@ export function FinanceiroView({
                 <ChargesStatusChart breakdown={chargesBreakdown} />
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Despesas por categoria</CardTitle>
+                <CardDescription>Distribuição das despesas cadastradas.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ExpensesByCategoryChart breakdown={expensesByCategory} />
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -326,11 +357,15 @@ export function FinanceiroView({
           <ExpensesToolbar
             search={expenseSearch}
             onSearchChange={setExpenseSearch}
+            statusFilter={expenseStatusFilter}
+            onStatusFilterChange={setExpenseStatusFilter}
             onNewExpense={openNewExpenseDialog}
           />
           <ExpensesTable
             expenses={filteredExpenses}
+            referenceDate={referenceDate}
             onEdit={openEditExpenseDialog}
+            onMarkAsPaid={handleMarkExpenseAsPaid}
             onDelete={setExpenseToDelete}
           />
         </TabsContent>
