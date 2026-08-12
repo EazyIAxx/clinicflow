@@ -53,9 +53,9 @@ export const navItems: NavItem[] = navGroups.flatMap((group) => group.items);
 
 export const dashboardHome: NavItem = {
   title: "Visão geral",
-  href: "/agenda",
+  href: "/dashboard",
   icon: LayoutDashboard,
-  milestone: "M2",
+  milestone: "M10",
 };
 
 export const mockUser = {
