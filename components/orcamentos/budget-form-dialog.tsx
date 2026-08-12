@@ -58,8 +58,7 @@ export function BudgetFormDialog({
       {
         id: crypto.randomUUID(),
         procedureId: procedures[0].id,
-        quantity: 1,
-        unitPrice: procedures[0].price,
+        amount: procedures[0].price,
       },
     ],
   );
@@ -79,8 +78,7 @@ export function BudgetFormDialog({
       {
         id: crypto.randomUUID(),
         procedureId: procedures[0].id,
-        quantity: 1,
-        unitPrice: procedures[0].price,
+        amount: procedures[0].price,
       },
     ]);
   }
@@ -95,7 +93,7 @@ export function BudgetFormDialog({
 
   function handleProcedureChange(itemId: string, procedureId: string) {
     const procedure = procedures.find((candidate) => candidate.id === procedureId);
-    updateItem(itemId, { procedureId, unitPrice: procedure?.price ?? 0 });
+    updateItem(itemId, { procedureId, amount: procedure?.price ?? 0 });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -215,26 +213,15 @@ export function BudgetFormDialog({
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex w-16 flex-col gap-1">
-                    <Label className="text-muted-foreground text-xs">Qtd.</Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(event) =>
-                        updateItem(item.id, { quantity: Number(event.target.value) })
-                      }
-                    />
-                  </div>
-                  <div className="flex w-28 flex-col gap-1">
-                    <Label className="text-muted-foreground text-xs">Valor unit.</Label>
+                  <div className="flex w-32 flex-col gap-1">
+                    <Label className="text-muted-foreground text-xs">Valor</Label>
                     <Input
                       type="number"
                       min={0}
                       step="0.01"
-                      value={item.unitPrice}
+                      value={item.amount}
                       onChange={(event) =>
-                        updateItem(item.id, { unitPrice: Number(event.target.value) })
+                        updateItem(item.id, { amount: Number(event.target.value) })
                       }
                     />
                   </div>
