@@ -92,15 +92,8 @@ export function BudgetDetailSheet({
                 const procedure = procedures.find((candidate) => candidate.id === item.procedureId);
                 return (
                   <div key={item.id} className="flex items-center justify-between text-sm">
-                    <div>
-                      <p>{procedure?.name ?? "Procedimento removido"}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {item.quantity}x {formatCurrency(item.unitPrice)}
-                      </p>
-                    </div>
-                    <span className="font-medium">
-                      {formatCurrency(item.quantity * item.unitPrice)}
-                    </span>
+                    <p>{procedure?.name ?? "Procedimento removido"}</p>
+                    <span className="font-medium">{formatCurrency(item.amount)}</span>
                   </div>
                 );
               })}
