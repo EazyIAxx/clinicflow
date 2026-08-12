@@ -27,7 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { mockUser, navGroups } from "@/lib/nav-items";
+import { dashboardHome, mockUser, navGroups } from "@/lib/nav-items";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -43,6 +43,23 @@ export function AppSidebar() {
         <Logo className="px-2 py-1" />
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  render={<Link href={dashboardHome.href} />}
+                  isActive={pathname.startsWith(dashboardHome.href)}
+                  tooltip={dashboardHome.title}
+                  onClick={closeOnMobile}
+                >
+                  <dashboardHome.icon />
+                  <span>{dashboardHome.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         {navGroups.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>

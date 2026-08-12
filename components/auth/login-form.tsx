@@ -24,7 +24,7 @@ export function LoginForm() {
     event.preventDefault();
     setIsSubmitting(true);
     // Login real (Supabase Auth) chega no M6 — por enquanto só simula o acesso ao dashboard.
-    router.push("/agenda");
+    router.push("/dashboard");
   }
 
   return (
