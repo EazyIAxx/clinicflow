@@ -132,11 +132,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/ui-dashboard`
 - **Objetivo**: home operacional do sistema — o que a recepção/gestor vê ao abrir o sistema no dia a dia. Diferente do M5 (Relatórios), que é analítico/histórico.
 - **Entregas**:
-  - [ ] Resumo da agenda do dia (próximos horários, confirmações pendentes)
-  - [ ] Pendências entre módulos (orçamentos aguardando aprovação, estoque crítico, leads sem retorno)
-  - [ ] Atalhos rápidos (novo agendamento, novo paciente, novo orçamento, novo lead)
-  - [ ] Feed de atividade recente
-- **Commit final**: `feat(ui): dashboard operacional (visão geral)`
+  - [x] Resumo da agenda do dia (próximos horários, confirmações pendentes)
+  - [x] Pendências entre módulos (orçamentos aguardando aprovação, estoque crítico, leads sem retorno)
+  - [x] Atalhos rápidos (novo agendamento, novo paciente, novo orçamento, novo lead)
+  - [x] Feed de atividade recente
+- **Commit final**: `feat(ui): dashboard operacional (visão geral)` ✅ (branch `feature/ui-dashboard`, PR #17, mergeada em `main`)
 
 ---
 
