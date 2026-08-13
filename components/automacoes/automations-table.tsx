@@ -6,6 +6,7 @@ import {
   Power,
   Repeat,
   Trash2,
+  Users,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +121,12 @@ export function AutomationsTable({
                       <Badge variant="outline">
                         <Repeat />
                         follow-up em {rule.action.followUp.delayDays}d
+                      </Badge>
+                    )}
+                    {rule.targetPatientIds && rule.targetPatientIds.length > 0 && (
+                      <Badge variant="outline">
+                        <Users />
+                        {rule.targetPatientIds.length} paciente(s)
                       </Badge>
                     )}
                   </div>
