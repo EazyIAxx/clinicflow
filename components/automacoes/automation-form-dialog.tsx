@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import { Check, MessageCircle } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { PatientMentionTextarea } from "@/components/automacoes/patient-mention-textarea";
@@ -40,6 +41,7 @@ import {
   type AutomationTriggerType,
 } from "@/lib/mock-automacoes";
 import type { Patient } from "@/lib/mock-pacientes";
+import { cn } from "@/lib/utils";
 
 const triggerTypeOrder: AutomationTriggerType[] = [
   "dias_apos_consulta",
@@ -83,6 +85,7 @@ export function AutomationFormDialog({
   prefill,
   patients,
   onSubmit,
+  onSubmitAndSend,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -90,6 +93,7 @@ export function AutomationFormDialog({
   prefill?: Pick<AutomationRule, "name" | "description" | "trigger" | "condition" | "action">;
   patients: Patient[];
   onSubmit: (rule: AutomationRule) => void;
+  onSubmitAndSend: (rule: AutomationRule) => void;
 }) {
   const isEditing = Boolean(rule);
   const base = rule ?? prefill;
@@ -125,12 +129,16 @@ export function AutomationFormDialog({
   );
   const [followUpDelayDays, setFollowUpDelayDays] = useState(base?.action.followUp?.delayDays ?? 3);
   const [followUpMessage, setFollowUpMessage] = useState(base?.action.followUp?.message ?? "");
+  const [targetPatientIds, setTargetPatientIds] = useState<string[]>(rule?.targetPatientIds ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
+  function toggleTargetPatient(patientId: string) {
+    setTargetPatientIds((prev) =>
+      prev.includes(patientId) ? prev.filter((id) => id !== patientId) : [...prev, patientId],
+    );
+  }
 
+  function buildRule(): AutomationRule {
     const condition: AutomationCondition | null =
       conditionField === NO_CONDITION
         ? null
@@ -146,7 +154,7 @@ export function AutomationFormDialog({
       followUp,
     };
 
-    onSubmit({
+    return {
       id: rule?.id ?? crypto.randomUUID(),
       name,
       description: description || undefined,
@@ -156,7 +164,20 @@ export function AutomationFormDialog({
       status: rule?.status ?? "ativa",
       createdAt: rule?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
       lastTriggeredAt: rule?.lastTriggeredAt,
-    });
+      targetPatientIds: targetPatientIds.length > 0 ? targetPatientIds : undefined,
+    };
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmitting(true);
+    onSubmit(buildRule());
+    onOpenChange(false);
+  }
+
+  function handleSubmitAndSend() {
+    setIsSubmitting(true);
+    onSubmitAndSend(buildRule());
     onOpenChange(false);
   }
 
@@ -368,6 +389,58 @@ export function AutomationFormDialog({
             </p>
           </div>
 
+          {actionChannel === "whatsapp" && (
+            <div className="flex flex-col gap-2 rounded-md border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <Label>Pacientes para disparo (opcional)</Label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setTargetPatientIds(
+                      targetPatientIds.length === patients.length
+                        ? []
+                        : patients.map((patient) => patient.id),
+                    )
+                  }
+                  className="text-primary text-xs hover:underline"
+                >
+                  {targetPatientIds.length === patients.length
+                    ? "Limpar seleção"
+                    : "Selecionar todos"}
+                </button>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Quem recebe a mensagem ao usar &quot;
+                {isEditing ? "Salvar e enviar via WhatsApp" : "Criar regra e enviar via WhatsApp"}
+                &quot;.
+              </p>
+              <div className="flex max-h-40 flex-col overflow-y-auto rounded-md border">
+                {patients.map((patient) => {
+                  const isSelected = targetPatientIds.includes(patient.id);
+                  return (
+                    <button
+                      key={patient.id}
+                      type="button"
+                      onClick={() => toggleTargetPatient(patient.id)}
+                      className={cn(
+                        "flex items-center justify-between gap-2 border-b px-3 py-1.5 text-left text-sm last:border-b-0",
+                        isSelected ? "bg-primary/10" : "hover:bg-muted",
+                      )}
+                    >
+                      {patient.name}
+                      {isSelected && <Check className="text-primary size-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+              {targetPatientIds.length > 0 && (
+                <p className="text-muted-foreground text-xs">
+                  {targetPatientIds.length} paciente(s) selecionado(s)
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-col gap-2 rounded-md border p-3">
             <Label>Follow-up (opcional)</Label>
             <Select
@@ -417,10 +490,20 @@ export function AutomationFormDialog({
             )}
           </div>
 
-          <DialogFooter>
-            <Button type="submit" disabled={isSubmitting || !name}>
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button type="submit" variant="outline" disabled={isSubmitting || !name}>
               {isEditing ? "Salvar alterações" : "Criar regra"}
             </Button>
+            {actionChannel === "whatsapp" && (
+              <Button
+                type="button"
+                disabled={isSubmitting || !name || !actionMessage || targetPatientIds.length === 0}
+                onClick={handleSubmitAndSend}
+              >
+                <MessageCircle />
+                {isEditing ? "Salvar e enviar via WhatsApp" : "Criar regra e enviar via WhatsApp"}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

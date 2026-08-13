@@ -6,6 +6,7 @@ import { AutomationFormDialog } from "@/components/automacoes/automation-form-di
 import { AutomationTemplates } from "@/components/automacoes/automation-templates";
 import { AutomationsTable } from "@/components/automacoes/automations-table";
 import { AutomationsToolbar } from "@/components/automacoes/automations-toolbar";
+import { BulkSendWhatsAppDialog } from "@/components/automacoes/bulk-send-whatsapp-dialog";
 import { SendWhatsAppDialog } from "@/components/automacoes/send-whatsapp-dialog";
 import {
   AlertDialog,
@@ -45,6 +46,10 @@ export function AutomacoesView({
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
   const [sendDialogKey, setSendDialogKey] = useState(0);
   const [ruleToSend, setRuleToSend] = useState<AutomationRule | null>(null);
+
+  const [isBulkSendDialogOpen, setIsBulkSendDialogOpen] = useState(false);
+  const [bulkSendDialogKey, setBulkSendDialogKey] = useState(0);
+  const [ruleToBulkSend, setRuleToBulkSend] = useState<AutomationRule | null>(null);
 
   const filteredRules = rules.filter((rule) => {
     const matchesSearch = rule.name.toLowerCase().includes(search.toLowerCase());
@@ -98,6 +103,13 @@ export function AutomacoesView({
     setIsSendDialogOpen(true);
   }
 
+  function handleRuleSubmitAndSend(rule: AutomationRule) {
+    handleRuleSubmit(rule);
+    setRuleToBulkSend(rule);
+    setBulkSendDialogKey((key) => key + 1);
+    setIsBulkSendDialogOpen(true);
+  }
+
   function handleConfirmDelete() {
     if (!ruleToDelete) return;
     setRules((prev) => prev.filter((existing) => existing.id !== ruleToDelete.id));
@@ -132,6 +144,7 @@ export function AutomacoesView({
         prefill={prefill}
         patients={patients}
         onSubmit={handleRuleSubmit}
+        onSubmitAndSend={handleRuleSubmitAndSend}
       />
 
       <SendWhatsAppDialog
@@ -139,6 +152,14 @@ export function AutomacoesView({
         open={isSendDialogOpen}
         onOpenChange={setIsSendDialogOpen}
         rule={ruleToSend}
+        patients={patients}
+      />
+
+      <BulkSendWhatsAppDialog
+        key={`bulk-send-whatsapp-${bulkSendDialogKey}`}
+        open={isBulkSendDialogOpen}
+        onOpenChange={setIsBulkSendDialogOpen}
+        rule={ruleToBulkSend}
         patients={patients}
       />
 

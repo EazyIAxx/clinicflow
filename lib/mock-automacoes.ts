@@ -64,6 +64,7 @@ export type AutomationRule = {
   status: AutomationStatus;
   createdAt: string; // yyyy-MM-dd
   lastTriggeredAt?: string; // yyyy-MM-dd
+  targetPatientIds?: string[];
 };
 
 export const automationTriggerMeta: Record<
@@ -249,17 +250,18 @@ export function getMockAutomationRules(referenceDate: Date): AutomationRule[] {
     {
       id: "automacao-8",
       name: "Promoção de Dia das Mães",
-      description: "Campanha promocional enviada a todos os pacientes na data escolhida.",
+      description: "Campanha promocional enviada a pacientes selecionados na data escolhida.",
       trigger: { type: "promocao", date: future(20) },
       condition: null,
       action: {
-        channel: "email",
+        channel: "whatsapp",
         message:
-          "Prepare-se para o Dia das Mães! Condições especiais em procedimentos até {{data}}.",
+          "Prepare-se para o Dia das Mães, {{paciente}}! Condições especiais em procedimentos até {{data}}.",
         sendTime: "10:00",
       },
       status: "pausada",
       createdAt: ago(10),
+      targetPatientIds: ["pac-1", "pac-13", "pac-15"],
     },
   ];
 }
