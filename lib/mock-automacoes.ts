@@ -1,4 +1,5 @@
 import { addDays, format, subDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   Cake,
   CalendarCheck,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 import type { AutomationStatus } from "@/lib/automacao-status";
+import type { Patient } from "@/lib/mock-pacientes";
 
 export type AutomationTriggerType =
   | "dias_apos_consulta"
@@ -324,3 +326,20 @@ export const automationTemplates: AutomationTemplate[] = [
     }),
   },
 ];
+
+/**
+ * Resolve os placeholders de um template de mensagem que têm um valor real
+ * disponível num envio manual — `{{paciente}}` e `{{data}}`. Os demais
+ * (`{{item}}`, `{{hora}}`, `{{link_pagamento}}`) ficam como estão no texto,
+ * já que não têm um valor certo fora da execução real da regra; o campo de
+ * mensagem no dialog de envio é editável, então dá pra ajustar à mão.
+ */
+export function resolveMessageTemplate(
+  template: string,
+  patient: Patient,
+  referenceDate: Date,
+): string {
+  return template
+    .replaceAll("{{paciente}}", patient.name)
+    .replaceAll("{{data}}", format(referenceDate, "dd/MM/yyyy", { locale: ptBR }));
+}
