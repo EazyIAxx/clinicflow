@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { Check, MessageCircle } from "lucide-react";
+import { Check, MessageCircle, Search } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { PatientMentionTextarea } from "@/components/automacoes/patient-mention-textarea";
@@ -130,7 +130,12 @@ export function AutomationFormDialog({
   const [followUpDelayDays, setFollowUpDelayDays] = useState(base?.action.followUp?.delayDays ?? 3);
   const [followUpMessage, setFollowUpMessage] = useState(base?.action.followUp?.message ?? "");
   const [targetPatientIds, setTargetPatientIds] = useState<string[]>(rule?.targetPatientIds ?? []);
+  const [patientSearch, setPatientSearch] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(patientSearch.toLowerCase()),
+  );
 
   function toggleTargetPatient(patientId: string) {
     setTargetPatientIds((prev) =>
@@ -414,8 +419,22 @@ export function AutomationFormDialog({
                 {isEditing ? "Salvar e enviar via WhatsApp" : "Criar regra e enviar via WhatsApp"}
                 &quot;.
               </p>
+              <div className="relative">
+                <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  value={patientSearch}
+                  onChange={(event) => setPatientSearch(event.target.value)}
+                  placeholder="Buscar paciente pelo nome..."
+                  className="w-full pl-8"
+                />
+              </div>
               <div className="flex max-h-40 flex-col overflow-y-auto rounded-md border">
-                {patients.map((patient) => {
+                {filteredPatients.length === 0 && (
+                  <p className="text-muted-foreground px-3 py-2 text-xs">
+                    Nenhum paciente encontrado.
+                  </p>
+                )}
+                {filteredPatients.map((patient) => {
                   const isSelected = targetPatientIds.includes(patient.id);
                   return (
                     <button
