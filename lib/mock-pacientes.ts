@@ -249,5 +249,17 @@ export function getMockPatients(referenceDate: Date): Patient[] {
       createdAt: ago(450),
       lastVisitAt: ago(45),
     },
+    {
+      id: "pac-15",
+      name: "Gabriel Andrade",
+      initials: "GA",
+      birthDate: "1995-06-15",
+      phone: "(31) 98855-1832",
+      email: "gabriel.teste@email.com",
+      responsibleProfessionalId: "prof-1",
+      status: "ativo",
+      notes: "Cadastro de teste para validar o envio de mensagens via WhatsApp.",
+      createdAt: ago(0),
+    },
   ];
 }

@@ -6,6 +6,7 @@ import { AutomationFormDialog } from "@/components/automacoes/automation-form-di
 import { AutomationTemplates } from "@/components/automacoes/automation-templates";
 import { AutomationsTable } from "@/components/automacoes/automations-table";
 import { AutomationsToolbar } from "@/components/automacoes/automations-toolbar";
+import { SendWhatsAppDialog } from "@/components/automacoes/send-whatsapp-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +41,10 @@ export function AutomacoesView({
   >(undefined);
 
   const [ruleToDelete, setRuleToDelete] = useState<AutomationRule | null>(null);
+
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
+  const [sendDialogKey, setSendDialogKey] = useState(0);
+  const [ruleToSend, setRuleToSend] = useState<AutomationRule | null>(null);
 
   const filteredRules = rules.filter((rule) => {
     const matchesSearch = rule.name.toLowerCase().includes(search.toLowerCase());
@@ -87,6 +92,12 @@ export function AutomacoesView({
     );
   }
 
+  function openSendDialog(rule: AutomationRule) {
+    setRuleToSend(rule);
+    setSendDialogKey((key) => key + 1);
+    setIsSendDialogOpen(true);
+  }
+
   function handleConfirmDelete() {
     if (!ruleToDelete) return;
     setRules((prev) => prev.filter((existing) => existing.id !== ruleToDelete.id));
@@ -109,6 +120,7 @@ export function AutomacoesView({
         rules={filteredRules}
         onEdit={openEditRuleDialog}
         onToggleStatus={handleToggleStatus}
+        onSendMessage={openSendDialog}
         onDelete={setRuleToDelete}
       />
 
@@ -120,6 +132,14 @@ export function AutomacoesView({
         prefill={prefill}
         patients={patients}
         onSubmit={handleRuleSubmit}
+      />
+
+      <SendWhatsAppDialog
+        key={`send-whatsapp-${sendDialogKey}`}
+        open={isSendDialogOpen}
+        onOpenChange={setIsSendDialogOpen}
+        rule={ruleToSend}
+        patients={patients}
       />
 
       <AlertDialog

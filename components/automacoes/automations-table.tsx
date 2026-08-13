@@ -1,4 +1,12 @@
-import { ArrowRight, MoreHorizontal, Pencil, Power, Repeat, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  MessageCircle,
+  MoreHorizontal,
+  Pencil,
+  Power,
+  Repeat,
+  Trash2,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,11 +52,13 @@ export function AutomationsTable({
   rules,
   onEdit,
   onToggleStatus,
+  onSendMessage,
   onDelete,
 }: {
   rules: AutomationRule[];
   onEdit: (rule: AutomationRule) => void;
   onToggleStatus: (rule: AutomationRule) => void;
+  onSendMessage: (rule: AutomationRule) => void;
   onDelete: (rule: AutomationRule) => void;
 }) {
   return (
@@ -135,6 +145,12 @@ export function AutomationsTable({
                         <Power />
                         {rule.status === "ativa" ? "Pausar" : "Ativar"}
                       </DropdownMenuItem>
+                      {rule.action.channel === "whatsapp" && (
+                        <DropdownMenuItem onClick={() => onSendMessage(rule)}>
+                          <MessageCircle />
+                          Enviar mensagem
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem variant="destructive" onClick={() => onDelete(rule)}>
                         <Trash2 />
