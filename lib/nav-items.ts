@@ -57,10 +57,3 @@ export const dashboardHome: NavItem = {
   icon: LayoutDashboard,
   milestone: "M10",
 };
-
-export const mockUser = {
-  name: "Ana Souza",
-  email: "ana.souza@clinicflow.com",
-  role: "Gestor/Admin",
-  initials: "AS",
-};

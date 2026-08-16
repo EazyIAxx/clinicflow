@@ -11,3 +11,40 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  recepcionista
+  profissional
+  gestor
+}
+
+enum UserStatus {
+  ativo
+  convite_pendente
+}
+
+model Clinic {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  cnpj      String?
+  phone     String?
+  address   String?
+  hours     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+/// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
+/// sem @default, pra não depender de trigger no Postgres pra manter em sincronia.
+model User {
+  id        String     @id @db.Uuid
+  clinicId  String     @db.Uuid
+  clinic    Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name      String
+  email     String     @unique
+  role      UserRole
+  status    UserStatus @default(convite_pendente)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}

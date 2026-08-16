@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,41 +20,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { deriveInitials } from "@/lib/mock-pacientes";
+import { inviteUser, updateUser, type UserActionState } from "@/lib/actions/users";
 import { userRoleLabels, userRoles, type SystemUser, type UserRole } from "@/lib/mock-usuarios";
 
 export function UserFormDialog({
   open,
   onOpenChange,
   user,
-  onSubmit,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user?: SystemUser;
-  onSubmit: (user: SystemUser) => void;
+  onSuccess: () => void;
 }) {
   const isEditing = Boolean(user);
-
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
+  const action = isEditing ? updateUser : inviteUser;
+  const [state, formAction, isPending] = useActionState<UserActionState, FormData>(action, {});
   const [role, setRole] = useState<UserRole>(user?.role ?? "recepcionista");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
-
-    onSubmit({
-      id: user?.id ?? crypto.randomUUID(),
-      name,
-      email,
-      initials: deriveInitials(name),
-      role,
-      status: user?.status ?? "convite_pendente",
-    });
-    onOpenChange(false);
-  }
+  useEffect(() => {
+    if (state.success) onSuccess();
+  }, [state.success, onSuccess]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,13 +55,16 @@ export function UserFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-4" action={formAction}>
+          {user && <input type="hidden" name="id" value={user.id} />}
+          <input type="hidden" name="role" value={role} />
+
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="user-name">Nome</Label>
             <Input
               id="user-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              name="name"
+              defaultValue={user?.name}
               placeholder="Ex.: Juliana Andrade"
               required
             />
@@ -84,10 +74,11 @@ export function UserFormDialog({
             <Label htmlFor="user-email">E-mail</Label>
             <Input
               id="user-email"
+              name="email"
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              defaultValue={user?.email}
               placeholder="voce@clinica.com"
+              disabled={isEditing}
               required
             />
           </div>
@@ -108,8 +99,10 @@ export function UserFormDialog({
             </Select>
           </div>
 
+          {state.error && <p className="text-destructive text-sm">{state.error}</p>}
+
           <DialogFooter>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isPending}>
               {isEditing ? "Salvar alterações" : "Enviar convite"}
             </Button>
           </DialogFooter>
