@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { categoryLabels, type StockItem } from "@/lib/mock-estoque";
+import { categoryLabels, type StockItem } from "@/lib/estoque-types";
 import { getStockFlags, stockFlagMeta } from "@/lib/stock-status";
 
 export function EstoqueTable({
@@ -26,12 +26,14 @@ export function EstoqueTable({
   onEdit,
   onRegisterMovement,
   onDelete,
+  canManage,
 }: {
   items: StockItem[];
   referenceDate: Date;
   onEdit: (item: StockItem) => void;
   onRegisterMovement: (item: StockItem) => void;
   onDelete: (item: StockItem) => void;
+  canManage: boolean;
 }) {
   return (
     <div className="rounded-lg border">
@@ -44,7 +46,7 @@ export function EstoqueTable({
             <TableHead className="text-right">Mínimo</TableHead>
             <TableHead>Validade</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-10" />
+            {canManage && <TableHead className="w-10" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -98,29 +100,31 @@ export function EstoqueTable({
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                      <MoreHorizontal />
-                      <span className="sr-only">Ações</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(item)}>
-                        <Pencil />
-                        Editar item
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onRegisterMovement(item)}>
-                        <ArrowLeftRight />
-                        Registrar movimentação
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem variant="destructive" onClick={() => onDelete(item)}>
-                        <Trash2 />
-                        Remover item
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+                {canManage && (
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+                        <MoreHorizontal />
+                        <span className="sr-only">Ações</span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onEdit(item)}>
+                          <Pencil />
+                          Editar item
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onRegisterMovement(item)}>
+                          <ArrowLeftRight />
+                          Registrar movimentação
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem variant="destructive" onClick={() => onDelete(item)}>
+                          <Trash2 />
+                          Remover item
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}

@@ -171,11 +171,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-estoque`
 - **Objetivo**: implementar a lógica real de estoque e conectar à UI construída no M3.
 - **Entregas**:
-  - [ ] Schema Prisma de itens, lotes e movimentações
-  - [ ] Server Actions de entrada/saída de estoque
-  - [ ] Lógica de alerta de estoque mínimo e validade
-  - [ ] Conectar UI de estoque (M3) aos dados reais
-- **Commit final**: `feat(backend): lógica de estoque e integração com a UI`
+  - [x] Schema Prisma de itens e movimentações — lote/validade ficaram como campos do próprio item (não virou entidade própria), decisão combinada com o usuário pra manter a tela igual à do M3
+  - [x] Server Actions de entrada/saída de estoque — validam saída maior que o disponível (rejeita com erro, não deixa zerar silenciosamente como o mock fazia) e atualizam item+movimentação numa transação só
+  - [x] Lógica de alerta de estoque mínimo e validade — mesma lógica do M3, agora sobre dado real
+  - [x] Conectar UI de estoque (M3) aos dados reais — recepcionista só visualiza, gestor gerencia, igual à matriz de permissões já existente
+- **Commit final**: `feat(backend): lógica de estoque e integração com a UI` ✅ (branch `feature/backend-estoque`, mergeada em `main`)
 
 ### M14. Backend de pacientes + prontuário/arquivos
 

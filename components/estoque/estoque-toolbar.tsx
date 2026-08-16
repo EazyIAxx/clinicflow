@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categories, categoryLabels, type StockCategory } from "@/lib/mock-estoque";
+import { categories, categoryLabels, type StockCategory } from "@/lib/estoque-types";
 
 export function EstoqueToolbar({
   search,
@@ -17,12 +17,14 @@ export function EstoqueToolbar({
   categoryFilter,
   onCategoryFilterChange,
   onNewItem,
+  canManage,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
   categoryFilter: StockCategory | "todas";
   onCategoryFilterChange: (value: StockCategory | "todas") => void;
   onNewItem: () => void;
+  canManage: boolean;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -57,10 +59,12 @@ export function EstoqueToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onNewItem}>
-        <Plus />
-        Novo item
-      </Button>
+      {canManage && (
+        <Button onClick={onNewItem}>
+          <Plus />
+          Novo item
+        </Button>
+      )}
     </div>
   );
 }

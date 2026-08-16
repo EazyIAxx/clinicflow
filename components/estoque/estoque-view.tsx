@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import { EstoqueTable } from "@/components/estoque/estoque-table";
 import { EstoqueToolbar } from "@/components/estoque/estoque-toolbar";
@@ -19,18 +20,29 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { StockCategory, StockItem, StockMovement } from "@/lib/mock-estoque";
+import { deleteItem } from "@/lib/actions/estoque";
+import type {
+  StockCategory,
+  StockItem,
+  StockItemMovementResult,
+  StockMovement,
+} from "@/lib/estoque-types";
 import { getStockFlags } from "@/lib/stock-status";
 
 export function EstoqueView({
   initialItems,
   initialMovements,
   referenceDate,
+  canManage,
 }: {
   initialItems: StockItem[];
   initialMovements: StockMovement[];
   referenceDate: Date;
+  canManage: boolean;
 }) {
+  const router = useRouter();
+  const [isDeleting, startDeleteTransition] = useTransition();
+
   const [items, setItems] = useState<StockItem[]>(initialItems);
   const [movements, setMovements] = useState<StockMovement[]>(initialMovements);
   const [search, setSearch] = useState("");
@@ -99,6 +111,7 @@ export function EstoqueView({
         ? prev.map((existing) => (existing.id === item.id ? item : existing))
         : [...prev, item];
     });
+    router.refresh();
   }
 
   function openMovementDialog(item: StockItem) {
@@ -109,25 +122,19 @@ export function EstoqueView({
 
   function handleConfirmDelete() {
     if (!itemToDelete) return;
-    setItems((prev) => prev.filter((existing) => existing.id !== itemToDelete.id));
+    const id = itemToDelete.id;
+    startDeleteTransition(async () => {
+      await deleteItem(id);
+      setItems((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setItemToDelete(null);
   }
 
-  function handleMovementSubmit(movement: StockMovement) {
-    setMovements((prev) => [...prev, movement]);
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === movement.itemId
-          ? {
-              ...item,
-              quantity:
-                movement.type === "entrada"
-                  ? item.quantity + movement.quantity
-                  : Math.max(0, item.quantity - movement.quantity),
-            }
-          : item,
-      ),
-    );
+  function handleMovementSubmit(result: StockItemMovementResult) {
+    setMovements((prev) => [...prev, result.movement]);
+    setItems((prev) => prev.map((item) => (item.id === result.item.id ? result.item : item)));
+    router.refresh();
   }
 
   return (
@@ -166,6 +173,7 @@ export function EstoqueView({
             categoryFilter={categoryFilter}
             onCategoryFilterChange={setCategoryFilter}
             onNewItem={openNewItemDialog}
+            canManage={canManage}
           />
           <EstoqueTable
             items={filteredItems}
@@ -173,6 +181,7 @@ export function EstoqueView({
             onEdit={openEditItemDialog}
             onRegisterMovement={openMovementDialog}
             onDelete={setItemToDelete}
+            canManage={canManage}
           />
         </TabsContent>
 
@@ -181,42 +190,50 @@ export function EstoqueView({
         </TabsContent>
       </Tabs>
 
-      <ItemFormDialog
-        key={`item-form-${itemDialogKey}`}
-        open={isItemDialogOpen}
-        onOpenChange={setIsItemDialogOpen}
-        item={editingItem}
-        onSubmit={handleItemSubmit}
-      />
+      {canManage && (
+        <>
+          <ItemFormDialog
+            key={`item-form-${itemDialogKey}`}
+            open={isItemDialogOpen}
+            onOpenChange={setIsItemDialogOpen}
+            item={editingItem}
+            onSubmit={handleItemSubmit}
+          />
 
-      <StockMovementDialog
-        key={`stock-movement-${movementDialogKey}`}
-        open={isMovementDialogOpen}
-        onOpenChange={setIsMovementDialogOpen}
-        item={movementItem}
-        onSubmit={handleMovementSubmit}
-      />
+          <StockMovementDialog
+            key={`stock-movement-${movementDialogKey}`}
+            open={isMovementDialogOpen}
+            onOpenChange={setIsMovementDialogOpen}
+            item={movementItem}
+            onSubmit={handleMovementSubmit}
+          />
 
-      <AlertDialog
-        open={Boolean(itemToDelete)}
-        onOpenChange={(open) => !open && setItemToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remover item?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja remover &quot;{itemToDelete?.name}&quot; do estoque? Essa ação
-              não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleConfirmDelete}>
-              Remover
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <AlertDialog
+            open={Boolean(itemToDelete)}
+            onOpenChange={(open) => !open && setItemToDelete(null)}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remover item?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja remover &quot;{itemToDelete?.name}&quot; do estoque? Essa
+                  ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  disabled={isDeleting}
+                  onClick={handleConfirmDelete}
+                >
+                  Remover
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
     </div>
   );
 }
