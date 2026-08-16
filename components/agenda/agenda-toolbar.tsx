@@ -1,8 +1,6 @@
-import { Plus, Users } from "lucide-react";
-import { useState } from "react";
+import { Plus } from "lucide-react";
 
 import { AgendaDatePicker } from "@/components/agenda/agenda-date-picker";
-import { ManageProfessionalsDialog } from "@/components/agenda/manage-professionals-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -37,8 +35,6 @@ export function AgendaToolbar({
   onNewAppointment: () => void;
   canManage: boolean;
 }) {
-  const [isManageProfessionalsOpen, setIsManageProfessionalsOpen] = useState(false);
-
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
@@ -73,23 +69,11 @@ export function AgendaToolbar({
         </Select>
       </div>
       {canManage && (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setIsManageProfessionalsOpen(true)}>
-            <Users />
-            Profissionais
-          </Button>
-          <Button onClick={onNewAppointment} disabled={professionals.length === 0}>
-            <Plus />
-            Novo agendamento
-          </Button>
-        </div>
+        <Button onClick={onNewAppointment} disabled={professionals.length === 0}>
+          <Plus />
+          Novo agendamento
+        </Button>
       )}
-
-      <ManageProfessionalsDialog
-        open={isManageProfessionalsOpen}
-        onOpenChange={setIsManageProfessionalsOpen}
-        professionals={professionals}
-      />
     </div>
   );
 }

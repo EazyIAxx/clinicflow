@@ -3,12 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getCurrentUser } from "@/lib/auth";
-import {
-  mapAppointment,
-  mapProfessional,
-  type Appointment,
-  type Professional,
-} from "@/lib/agenda-types";
+import { mapAppointment, type Appointment } from "@/lib/agenda-types";
 import { prisma } from "@/lib/prisma";
 
 export type AgendaActionState<T> = {
@@ -192,45 +187,88 @@ export async function removeBlock(id: string): Promise<AgendaActionState<null>> 
   return { data: null };
 }
 
-export async function createProfessional(input: {
-  name: string;
-  specialty: string;
-  room: string;
-}): Promise<AgendaActionState<Professional>> {
+export type ProfessionalActionState = {
+  error?: string;
+  success?: boolean;
+};
+
+export async function createProfessional(
+  _prevState: ProfessionalActionState,
+  formData: FormData,
+): Promise<ProfessionalActionState> {
   const currentUser = await requireAgendaManager();
   if (!currentUser) {
     return { error: "Você não tem permissão para cadastrar profissionais." };
   }
 
-  const name = input.name.trim();
-  const specialty = input.specialty.trim();
-  const room = input.room.trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const specialty = String(formData.get("specialty") ?? "").trim();
+  const room = String(formData.get("room") ?? "").trim();
+  const licenseNumber = String(formData.get("licenseNumber") ?? "").trim();
+
   if (!name || !specialty || !room) {
     return { error: "Preencha nome, especialidade e sala." };
   }
 
-  const row = await prisma.professional.create({
-    data: { clinicId: currentUser.clinicId, name, specialty, room },
+  await prisma.professional.create({
+    data: {
+      clinicId: currentUser.clinicId,
+      name,
+      specialty,
+      room,
+      licenseNumber: licenseNumber || undefined,
+    },
   });
 
+  revalidatePath("/profissionais");
   revalidatePath("/agenda");
-  return { data: mapProfessional(row) };
+  return { success: true };
+}
+
+export async function updateProfessional(
+  _prevState: ProfessionalActionState,
+  formData: FormData,
+): Promise<ProfessionalActionState> {
+  const currentUser = await requireAgendaManager();
+  if (!currentUser) {
+    return { error: "Você não tem permissão para editar profissionais." };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const specialty = String(formData.get("specialty") ?? "").trim();
+  const room = String(formData.get("room") ?? "").trim();
+  const licenseNumber = String(formData.get("licenseNumber") ?? "").trim();
+
+  if (!name || !specialty || !room) {
+    return { error: "Preencha nome, especialidade e sala." };
+  }
+
+  await prisma.professional.update({
+    where: { id, clinicId: currentUser.clinicId },
+    data: { name, specialty, room, licenseNumber: licenseNumber || null },
+  });
+
+  revalidatePath("/profissionais");
+  revalidatePath("/agenda");
+  return { success: true };
 }
 
 export async function setProfessionalActive(
   id: string,
   active: boolean,
-): Promise<AgendaActionState<Professional>> {
+): Promise<ProfessionalActionState> {
   const currentUser = await requireAgendaManager();
   if (!currentUser) {
     return { error: "Você não tem permissão para gerenciar profissionais." };
   }
 
-  const row = await prisma.professional.update({
+  await prisma.professional.update({
     where: { id, clinicId: currentUser.clinicId },
     data: { active },
   });
 
+  revalidatePath("/profissionais");
   revalidatePath("/agenda");
-  return { data: mapProfessional(row) };
+  return { success: true };
 }
