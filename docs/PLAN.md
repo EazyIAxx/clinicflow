@@ -204,10 +204,10 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-crm`
 - **Objetivo**: implementar o funil de leads real e conectar à UI construída no M6.
 - **Entregas**:
-  - [ ] Schema Prisma de leads e interações
-  - [ ] Server Actions de criar/mover/converter lead em paciente
-  - [ ] Conectar UI de CRM (M6) aos dados reais
-- **Commit final**: `feat(backend): funil de leads real e integração com a UI`
+  - [x] Schema Prisma de leads e interações
+  - [x] Server Actions de criar/mover/converter lead em paciente — conversão agora cria um Patient de verdade e liga `Lead.convertedPatientId`, em vez de só redirecionar com querystring pro formulário (como era no mock)
+  - [x] Conectar UI de CRM (M6) aos dados reais — módulo "crm" adicionado à matriz de permissões (não existia)
+- **Commit final**: `feat(backend): funil de leads real e integração com a UI` ✅ (branch `feature/backend-crm`, mergeada em `main`)
 
 ### M17. Backend de orçamentos + financeiro
 

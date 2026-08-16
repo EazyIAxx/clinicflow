@@ -33,14 +33,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { addLeadInteraction, convertLeadToPatient } from "@/lib/actions/crm";
+import type { Professional } from "@/lib/agenda-types";
+import type { Interaction, InteractionType, Lead } from "@/lib/crm-types";
 import { leadStageMeta, leadStageOrder, type LeadStage } from "@/lib/lead-status";
-import {
-  responsibleProfessionalName,
-  type Interaction,
-  type InteractionType,
-  type Lead,
-} from "@/lib/mock-leads";
-import { deriveInitials } from "@/lib/mock-pacientes";
+import { deriveInitials } from "@/lib/patient-types";
 
 const interactionTypeMeta: Record<InteractionType, { label: string; icon: LucideIcon }> = {
   nota: { label: "Nota", icon: StickyNote },
@@ -51,6 +48,7 @@ const interactionTypeMeta: Record<InteractionType, { label: string; icon: Lucide
 export function LeadDetailSheet({
   lead,
   interactions,
+  professionals,
   open,
   onOpenChange,
   onStageChange,
@@ -60,6 +58,7 @@ export function LeadDetailSheet({
 }: {
   lead: Lead | null;
   interactions: Interaction[];
+  professionals: Professional[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStageChange: (leadId: string, stage: LeadStage) => void;
@@ -70,6 +69,11 @@ export function LeadDetailSheet({
   const router = useRouter();
   const [interactionType, setInteractionType] = useState<InteractionType>("nota");
   const [content, setContent] = useState("");
+  const [isConverting, setIsConverting] = useState(false);
+
+  const professionalName = lead
+    ? professionals.find((professional) => professional.id === lead.responsibleProfessionalId)?.name
+    : undefined;
 
   const leadInteractions = lead
     ? interactions
@@ -77,27 +81,26 @@ export function LeadDetailSheet({
         .sort((a, b) => (a.date < b.date ? 1 : -1))
     : [];
 
-  function handleAddInteraction(event: FormEvent<HTMLFormElement>) {
+  async function handleAddInteraction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!lead || !content.trim()) return;
 
-    onAddInteraction({
-      id: crypto.randomUUID(),
-      leadId: lead.id,
-      type: interactionType,
-      content,
-      date: format(new Date(), "yyyy-MM-dd"),
-      author: "Ana Souza",
-    });
-    setContent("");
+    const result = await addLeadInteraction({ leadId: lead.id, type: interactionType, content });
+    if (result.data) {
+      onAddInteraction(result.data);
+      setContent("");
+    }
   }
 
-  function handleConvert() {
+  async function handleConvert() {
     if (!lead) return;
-    onStageChange(lead.id, "convertido");
-    const params = new URLSearchParams({ novo: "1", nome: lead.name, telefone: lead.phone });
-    if (lead.email) params.set("email", lead.email);
-    router.push(`/pacientes?${params.toString()}`);
+    setIsConverting(true);
+    const result = await convertLeadToPatient(lead.id);
+    setIsConverting(false);
+    if (result.data) {
+      onStageChange(lead.id, "convertido");
+      router.push(`/pacientes/${result.data.patientId}`);
+    }
   }
 
   return (
@@ -152,7 +155,7 @@ export function LeadDetailSheet({
             </div>
             <div>
               <span className="text-muted-foreground">Responsável</span>
-              <p>{(lead && responsibleProfessionalName(lead)) ?? "—"}</p>
+              <p>{professionalName ?? "—"}</p>
             </div>
           </div>
 
@@ -234,9 +237,13 @@ export function LeadDetailSheet({
               <Pencil />
               Editar
             </Button>
-            <Button size="sm" onClick={handleConvert} disabled={lead?.stage === "convertido"}>
+            <Button
+              size="sm"
+              onClick={handleConvert}
+              disabled={lead?.stage === "convertido" || isConverting}
+            >
               <UserCheck />
-              Converter em paciente
+              {isConverting ? "Convertendo..." : "Converter em paciente"}
             </Button>
           </div>
         </SheetFooter>

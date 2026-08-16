@@ -1,6 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
 import { useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -22,9 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createLead, updateLead } from "@/lib/actions/crm";
+import type { Professional } from "@/lib/agenda-types";
+import { originOptions, type Lead, type LeadOrigin } from "@/lib/crm-types";
 import { leadStageMeta, leadStageOrder, type LeadStage } from "@/lib/lead-status";
-import { professionals } from "@/lib/mock-agenda";
-import { originOptions, type Lead, type LeadOrigin } from "@/lib/mock-leads";
 
 const NONE_PROFESSIONAL = "nenhum";
 
@@ -32,11 +32,13 @@ export function LeadFormDialog({
   open,
   onOpenChange,
   lead,
+  professionals,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lead?: Lead;
+  professionals: Professional[];
   onSubmit: (lead: Lead) => void;
 }) {
   const isEditing = Boolean(lead);
@@ -52,13 +54,14 @@ export function LeadFormDialog({
   const [stage, setStage] = useState<LeadStage>(lead?.stage ?? "novo");
   const [notes, setNotes] = useState(lead?.notes ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: lead?.id ?? crypto.randomUUID(),
+    const input = {
       name,
       phone,
       email: email || undefined,
@@ -68,8 +71,18 @@ export function LeadFormDialog({
         responsibleProfessionalId === NONE_PROFESSIONAL ? undefined : responsibleProfessionalId,
       stage,
       notes: notes || undefined,
-      createdAt: lead?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
-    });
+    };
+
+    const result = lead ? await updateLead(lead.id, input) : await createLead(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -204,9 +217,11 @@ export function LeadFormDialog({
             />
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Cadastrar lead"}
+              {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar lead"}
             </Button>
           </DialogFooter>
         </form>

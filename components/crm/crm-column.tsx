@@ -3,8 +3,8 @@
 import { useDroppable } from "@dnd-kit/core";
 
 import { LeadCard } from "@/components/crm/lead-card";
+import type { Interaction, Lead } from "@/lib/crm-types";
 import { leadStageMeta, type LeadStage } from "@/lib/lead-status";
-import type { Interaction, Lead } from "@/lib/mock-leads";
 
 export function CrmColumn({
   stage,

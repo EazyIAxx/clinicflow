@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { CrmBoard } from "@/components/crm/crm-board";
 import { LeadDetailSheet } from "@/components/crm/lead-detail-sheet";
@@ -18,19 +20,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { deleteLead, updateLeadStage } from "@/lib/actions/crm";
+import type { Professional } from "@/lib/agenda-types";
+import { isLeadStale, type Interaction, type Lead } from "@/lib/crm-types";
 import type { LeadStage } from "@/lib/lead-status";
-import { isLeadStale, type Interaction, type Lead } from "@/lib/mock-leads";
-import { Plus, Search } from "lucide-react";
 
 export function CrmView({
   initialLeads,
   initialInteractions,
+  professionals,
   referenceDate,
 }: {
   initialLeads: Lead[];
   initialInteractions: Interaction[];
+  professionals: Professional[];
   referenceDate: Date;
 }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [interactions, setInteractions] = useState<Interaction[]>(initialInteractions);
   const [search, setSearch] = useState("");
@@ -73,10 +81,15 @@ export function CrmView({
         ? prev.map((existing) => (existing.id === lead.id ? lead : existing))
         : [...prev, lead];
     });
+    router.refresh();
   }
 
   function handleStageChange(leadId: string, stage: LeadStage) {
     setLeads((prev) => prev.map((lead) => (lead.id === leadId ? { ...lead, stage } : lead)));
+    startTransition(async () => {
+      await updateLeadStage(leadId, stage);
+      router.refresh();
+    });
   }
 
   function openLeadDetail(lead: Lead) {
@@ -96,12 +109,18 @@ export function CrmView({
 
   function handleConfirmDelete() {
     if (!leadToDelete) return;
-    setLeads((prev) => prev.filter((existing) => existing.id !== leadToDelete.id));
+    const id = leadToDelete.id;
+    startTransition(async () => {
+      await deleteLead(id);
+      setLeads((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setLeadToDelete(null);
   }
 
   function handleAddInteraction(interaction: Interaction) {
     setInteractions((prev) => [...prev, interaction]);
+    router.refresh();
   }
 
   return (
@@ -156,12 +175,14 @@ export function CrmView({
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         lead={editingLead}
+        professionals={professionals}
         onSubmit={handleFormSubmit}
       />
 
       <LeadDetailSheet
         lead={selectedLead}
         interactions={interactions}
+        professionals={professionals}
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
         onStageChange={handleStageChange}
