@@ -2,7 +2,8 @@ import { Check, Eye, Minus, type LucideIcon } from "lucide-react";
 
 import type { UserRole } from "@/lib/mock-usuarios";
 
-export type PermissionModule = "agenda" | "estoque" | "pacientes" | "relatorios" | "configuracoes";
+export type PermissionModule =
+  "agenda" | "estoque" | "pacientes" | "crm" | "relatorios" | "configuracoes";
 
 export type AccessLevel = "nenhum" | "visualizar" | "gerenciar";
 
@@ -10,6 +11,7 @@ export const permissionModuleLabels: Record<PermissionModule, string> = {
   agenda: "Agenda",
   estoque: "Estoque",
   pacientes: "Pacientes / Prontuário",
+  crm: "CRM",
   relatorios: "Relatórios",
   configuracoes: "Configurações",
 };
@@ -52,6 +54,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     agenda: "gerenciar",
     estoque: "visualizar",
     pacientes: "gerenciar",
+    crm: "gerenciar",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -59,6 +62,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     agenda: "visualizar",
     estoque: "nenhum",
     pacientes: "gerenciar",
+    crm: "gerenciar",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -66,6 +70,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     agenda: "gerenciar",
     estoque: "gerenciar",
     pacientes: "gerenciar",
+    crm: "gerenciar",
     relatorios: "gerenciar",
     configuracoes: "gerenciar",
   },

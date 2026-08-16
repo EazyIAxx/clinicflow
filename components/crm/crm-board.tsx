@@ -10,8 +10,8 @@ import {
 } from "@dnd-kit/core";
 
 import { CrmColumn } from "@/components/crm/crm-column";
+import type { Interaction, Lead } from "@/lib/crm-types";
 import { leadStageOrder, type LeadStage } from "@/lib/lead-status";
-import type { Interaction, Lead } from "@/lib/mock-leads";
 
 export function CrmBoard({
   leads,

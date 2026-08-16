@@ -5,13 +5,8 @@ import { Clock } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { deriveInitials } from "@/lib/mock-pacientes";
-import {
-  getDaysSinceLastContact,
-  isLeadStale,
-  type Interaction,
-  type Lead,
-} from "@/lib/mock-leads";
+import { getDaysSinceLastContact, isLeadStale, type Interaction, type Lead } from "@/lib/crm-types";
+import { deriveInitials } from "@/lib/patient-types";
 
 export function LeadCard({
   lead,
