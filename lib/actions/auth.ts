@@ -238,6 +238,14 @@ export async function register(
     },
   });
 
+  // Se o Supabase já devolveu uma sessão, a conta não precisa de confirmação
+  // por e-mail (confirmação desativada no projeto, ou já confirmada) — o
+  // usuário já está autenticado, então não faz sentido mostrar uma tela
+  // pedindo pra checar um e-mail que nunca vai chegar.
+  if (data.session) {
+    redirect("/dashboard");
+  }
+
   return { success: true };
 }
 
