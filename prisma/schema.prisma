@@ -73,16 +73,19 @@ enum AppointmentKind {
 }
 
 model Professional {
-  id           String        @id @default(uuid()) @db.Uuid
-  clinicId     String        @db.Uuid
-  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  name         String
-  specialty    String
-  room         String
-  active       Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  appointments Appointment[]
+  id            String        @id @default(uuid()) @db.Uuid
+  clinicId      String        @db.Uuid
+  clinic        Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name          String
+  specialty     String
+  room          String
+  /// Registro no conselho profissional (CRM, CRO, CREFITO, COREN etc.).
+  /// Opcional porque nem toda especialidade tem conselho regulador.
+  licenseNumber String?
+  active        Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appointments  Appointment[]
 
   @@index([clinicId])
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import { AgendaDayGrid } from "@/components/agenda/agenda-day-grid";
 import { AgendaLegend } from "@/components/agenda/agenda-legend";
@@ -154,9 +155,17 @@ export function AgendaView({
 
       {professionals.length === 0 && (
         <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
-          {canManage
-            ? 'Nenhum profissional cadastrado ainda. Clique em "Profissionais" para adicionar o primeiro.'
-            : "Nenhum profissional cadastrado ainda."}
+          {canManage ? (
+            <>
+              Nenhum profissional cadastrado ainda.{" "}
+              <Link href="/profissionais" className="text-foreground font-medium hover:underline">
+                Cadastre o primeiro
+              </Link>
+              .
+            </>
+          ) : (
+            "Nenhum profissional cadastrado ainda."
+          )}
         </p>
       )}
 

@@ -9,6 +9,7 @@ export type Professional = {
   name: string;
   specialty: string;
   room: string;
+  licenseNumber?: string;
   initials: string;
   active: boolean;
 };
@@ -41,6 +42,7 @@ export function mapProfessional(row: ProfessionalRow): Professional {
     name: row.name,
     specialty: row.specialty,
     room: row.room,
+    licenseNumber: row.licenseNumber ?? undefined,
     initials: getInitials(row.name),
     active: row.active,
   };

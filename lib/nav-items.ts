@@ -7,6 +7,7 @@ import {
   Package,
   Receipt,
   Settings,
+  Stethoscope,
   Users,
   Workflow,
   type LucideIcon,
@@ -29,6 +30,7 @@ export const navGroups: NavGroup[] = [
     label: "Atendimento",
     items: [
       { title: "Agenda", href: "/agenda", icon: CalendarDays, milestone: "M2" },
+      { title: "Profissionais", href: "/profissionais", icon: Stethoscope, milestone: "M12" },
       { title: "CRM", href: "/crm", icon: Handshake, milestone: "M6" },
       { title: "Pacientes", href: "/pacientes", icon: Users, milestone: "M4" },
       { title: "Prontuários", href: "/prontuarios", icon: ClipboardList, milestone: "M4" },
