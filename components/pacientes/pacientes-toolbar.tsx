@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { professionals } from "@/lib/mock-agenda";
+import type { Professional } from "@/lib/agenda-types";
 import { patientStatusMeta, type PatientStatus } from "@/lib/patient-status";
 
 export function PacientesToolbar({
@@ -19,6 +19,7 @@ export function PacientesToolbar({
   onStatusFilterChange,
   professionalFilter,
   onProfessionalFilterChange,
+  professionals,
   onNewPatient,
 }: {
   search: string;
@@ -27,6 +28,7 @@ export function PacientesToolbar({
   onStatusFilterChange: (value: PatientStatus | "todos") => void;
   professionalFilter: string;
   onProfessionalFilterChange: (value: string) => void;
+  professionals: Professional[];
   onNewPatient: () => void;
 }) {
   return (

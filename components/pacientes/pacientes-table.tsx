@@ -19,17 +19,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { responsibleProfessionalName, type Patient } from "@/lib/mock-pacientes";
+import type { Professional } from "@/lib/agenda-types";
+import type { Patient } from "@/lib/patient-types";
 import { patientStatusMeta } from "@/lib/patient-status";
 
 const formatDate = (date?: string) => (date ? date.split("-").reverse().join("/") : "—");
 
 export function PacientesTable({
   patients,
+  professionalsById,
   onEdit,
   onDelete,
 }: {
   patients: Patient[];
+  professionalsById: Record<string, Professional>;
   onEdit: (patient: Patient) => void;
   onDelete: (patient: Patient) => void;
 }) {
@@ -71,7 +74,9 @@ export function PacientesTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground">{patient.phone}</TableCell>
                 <TableCell className="text-muted-foreground">
-                  {responsibleProfessionalName(patient) ?? "—"}
+                  {(patient.responsibleProfessionalId &&
+                    professionalsById[patient.responsibleProfessionalId]?.name) ??
+                    "—"}
                 </TableCell>
                 <TableCell>
                   <Badge className={statusInfo.badgeClassName}>

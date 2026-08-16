@@ -1,16 +1,17 @@
 "use client";
 
 import { differenceInCalendarDays } from "date-fns";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import { DocumentAccessLegend } from "@/components/prontuarios/document-access-legend";
 import { DocumentUploadDialog } from "@/components/prontuarios/document-upload-dialog";
 import { DocumentsGrid } from "@/components/prontuarios/documents-grid";
 import { ProntuariosToolbar } from "@/components/prontuarios/prontuarios-toolbar";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { deleteDocument } from "@/lib/actions/documents";
 import type { DocumentCategory } from "@/lib/document-access";
-import type { PatientDocument } from "@/lib/mock-documentos";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Patient, PatientDocument } from "@/lib/patient-types";
 
 export function ProntuariosView({
   initialDocuments,
@@ -21,6 +22,9 @@ export function ProntuariosView({
   patients: Patient[];
   referenceDate: Date;
 }) {
+  const router = useRouter();
+  const [isRemoving, startRemoveTransition] = useTransition();
+
   const [documents, setDocuments] = useState<PatientDocument[]>(initialDocuments);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<DocumentCategory | "todas">("todas");
@@ -59,7 +63,11 @@ export function ProntuariosView({
   }
 
   function handleRemoveDocument(document: PatientDocument) {
-    setDocuments((prev) => prev.filter((existing) => existing.id !== document.id));
+    startRemoveTransition(async () => {
+      await deleteDocument(document.id);
+      setDocuments((prev) => prev.filter((existing) => existing.id !== document.id));
+      router.refresh();
+    });
   }
 
   return (
@@ -94,6 +102,7 @@ export function ProntuariosView({
         <DocumentsGrid
           documents={filteredDocuments}
           onRemove={handleRemoveDocument}
+          isRemoving={isRemoving}
           getPatientName={getPatientName}
           emptyMessage="Nenhum documento encontrado."
         />

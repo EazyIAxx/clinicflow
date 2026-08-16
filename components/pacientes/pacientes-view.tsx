@@ -1,8 +1,8 @@
 "use client";
 
 import { isSameMonth } from "date-fns";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { PacientesTable } from "@/components/pacientes/pacientes-table";
 import { PacientesToolbar } from "@/components/pacientes/pacientes-toolbar";
@@ -18,17 +18,23 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Patient } from "@/lib/mock-pacientes";
+import { deletePatient } from "@/lib/actions/patients";
+import type { Professional } from "@/lib/agenda-types";
+import type { Patient } from "@/lib/patient-types";
 import type { PatientStatus } from "@/lib/patient-status";
 
 export function PacientesView({
   initialPatients,
+  professionals,
   referenceDate,
 }: {
   initialPatients: Patient[];
+  professionals: Professional[];
   referenceDate: Date;
 }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState("");
@@ -51,6 +57,8 @@ export function PacientesView({
   );
 
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+
+  const professionalsById = Object.fromEntries(professionals.map((p) => [p.id, p]));
 
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch = patient.name.toLowerCase().includes(search.toLowerCase());
@@ -84,11 +92,17 @@ export function PacientesView({
         ? prev.map((existing) => (existing.id === patient.id ? patient : existing))
         : [...prev, patient];
     });
+    router.refresh();
   }
 
   function handleConfirmDelete() {
     if (!patientToDelete) return;
-    setPatients((prev) => prev.filter((existing) => existing.id !== patientToDelete.id));
+    const id = patientToDelete.id;
+    startDeleteTransition(async () => {
+      await deletePatient(id);
+      setPatients((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setPatientToDelete(null);
   }
 
@@ -123,10 +137,12 @@ export function PacientesView({
           onStatusFilterChange={setStatusFilter}
           professionalFilter={professionalFilter}
           onProfessionalFilterChange={setProfessionalFilter}
+          professionals={professionals}
           onNewPatient={openNewPatientDialog}
         />
         <PacientesTable
           patients={filteredPatients}
+          professionalsById={professionalsById}
           onEdit={openEditPatientDialog}
           onDelete={setPatientToDelete}
         />
@@ -137,6 +153,7 @@ export function PacientesView({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         patient={editingPatient}
+        professionals={professionals}
         initialValues={editingPatient ? undefined : prefillValues}
         onSubmit={handleSubmit}
       />
@@ -155,7 +172,11 @@ export function PacientesView({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleConfirmDelete}>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleConfirmDelete}
+            >
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>

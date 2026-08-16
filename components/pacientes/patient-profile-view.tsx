@@ -1,7 +1,8 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { PatientFormDialog } from "@/components/pacientes/patient-form-dialog";
 import { PatientProfileHeader } from "@/components/pacientes/patient-profile-header";
@@ -11,8 +12,9 @@ import { DocumentsGrid } from "@/components/prontuarios/documents-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { PatientDocument } from "@/lib/mock-documentos";
-import { responsibleProfessionalName, type Patient } from "@/lib/mock-pacientes";
+import { deleteDocument } from "@/lib/actions/documents";
+import type { Professional } from "@/lib/agenda-types";
+import type { Patient, PatientDocument } from "@/lib/patient-types";
 
 const formatDate = (date?: string) => (date ? date.split("-").reverse().join("/") : "—");
 
@@ -28,12 +30,19 @@ function DataRow({ label, value }: { label: string; value: string }) {
 export function PatientProfileView({
   initialPatient,
   initialDocuments,
+  professionals,
+  professionalName,
   referenceDate,
 }: {
   initialPatient: Patient;
   initialDocuments: PatientDocument[];
+  professionals: Professional[];
+  professionalName?: string;
   referenceDate: Date;
 }) {
+  const router = useRouter();
+  const [isRemoving, startRemoveTransition] = useTransition();
+
   const [patient, setPatient] = useState(initialPatient);
   const [documents, setDocuments] = useState(initialDocuments);
 
@@ -54,7 +63,11 @@ export function PatientProfileView({
   }
 
   function handleRemoveDocument(document: PatientDocument) {
-    setDocuments((prev) => prev.filter((existing) => existing.id !== document.id));
+    startRemoveTransition(async () => {
+      await deleteDocument(document.id);
+      setDocuments((prev) => prev.filter((existing) => existing.id !== document.id));
+      router.refresh();
+    });
   }
 
   return (
@@ -62,6 +75,7 @@ export function PatientProfileView({
       <PatientProfileHeader
         patient={patient}
         referenceDate={referenceDate}
+        professionalName={professionalName}
         onEdit={openEditDialog}
       />
 
@@ -81,10 +95,7 @@ export function PatientProfileView({
               <DataRow label="Telefone" value={patient.phone} />
               <DataRow label="E-mail" value={patient.email ?? "—"} />
               <DataRow label="CPF" value={patient.cpf ?? "—"} />
-              <DataRow
-                label="Profissional responsável"
-                value={responsibleProfessionalName(patient) ?? "—"}
-              />
+              <DataRow label="Profissional responsável" value={professionalName ?? "—"} />
               <DataRow label="Cadastrado em" value={formatDate(patient.createdAt)} />
               <DataRow label="Última visita" value={formatDate(patient.lastVisitAt)} />
             </CardContent>
@@ -131,6 +142,7 @@ export function PatientProfileView({
           <DocumentsGrid
             documents={documents}
             onRemove={handleRemoveDocument}
+            isRemoving={isRemoving}
             emptyMessage="Esse paciente ainda não tem documentos."
           />
         </TabsContent>
@@ -141,6 +153,7 @@ export function PatientProfileView({
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         patient={patient}
+        professionals={professionals}
         onSubmit={setPatient}
       />
 

@@ -37,6 +37,8 @@ model Clinic {
   appointments   Appointment[]
   stockItems     StockItem[]
   stockMovements StockMovement[]
+  patients       Patient[]
+  documents      Document[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -88,6 +90,7 @@ model Professional {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   appointments  Appointment[]
+  patients      Patient[]
 
   @@index([clinicId])
 }
@@ -167,4 +170,65 @@ model StockMovement {
 
   @@index([clinicId, date])
   @@index([itemId])
+}
+
+enum PatientStatus {
+  ativo
+  inativo
+}
+
+model Patient {
+  id                         String        @id @default(uuid()) @db.Uuid
+  clinicId                   String        @db.Uuid
+  clinic                     Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name                       String
+  /// yyyy-MM-dd
+  birthDate                  String
+  phone                      String
+  email                      String?
+  cpf                        String?
+  responsibleProfessionalId  String?       @db.Uuid
+  responsibleProfessional    Professional? @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
+  status                     PatientStatus @default(ativo)
+  notes                      String?
+  /// yyyy-MM-dd
+  lastVisitAt                String?
+  healthInsuranceProvider    String?
+  healthInsurancePlan        String?
+  healthInsuranceCardNumber  String?
+  /// yyyy-MM-dd
+  healthInsuranceValidUntil  String?
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  documents                  Document[]
+
+  @@index([clinicId])
+  @@index([responsibleProfessionalId])
+}
+
+enum DocumentCategory {
+  exame
+  receita
+  atestado
+  documento
+}
+
+/// `exame` é restrito pra quem não é profissional/gestor (ver lib/document-access.ts
+/// e a policy de RLS abaixo) — dado clínico sensível, diferente de receita/atestado.
+model Document {
+  id          String           @id @default(uuid()) @db.Uuid
+  clinicId    String           @db.Uuid
+  clinic      Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId   String           @db.Uuid
+  patient     Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name        String
+  category    DocumentCategory
+  /// Caminho no bucket do Supabase Storage: {clinicId}/{patientId}/{id}-{name}
+  storagePath String
+  fileType    String
+  sizeBytes   Int
+  uploadedBy  String
+  createdAt   DateTime         @default(now())
+
+  @@index([clinicId, patientId])
 }

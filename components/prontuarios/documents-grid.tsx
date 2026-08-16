@@ -2,16 +2,18 @@ import { FolderOpen } from "lucide-react";
 
 import { DocumentCard } from "@/components/prontuarios/document-card";
 import { documentCategories, documentCategoryMeta } from "@/lib/document-access";
-import type { PatientDocument } from "@/lib/mock-documentos";
+import type { PatientDocument } from "@/lib/patient-types";
 
 export function DocumentsGrid({
   documents,
   onRemove,
+  isRemoving,
   getPatientName,
   emptyMessage = "Nenhum documento ainda.",
 }: {
   documents: PatientDocument[];
   onRemove: (document: PatientDocument) => void;
+  isRemoving?: boolean;
   getPatientName?: (patientId: string) => string | undefined;
   emptyMessage?: string;
 }) {
@@ -48,6 +50,7 @@ export function DocumentsGrid({
                   document={document}
                   patientName={getPatientName?.(document.patientId)}
                   onRemove={onRemove}
+                  isRemoving={isRemoving}
                 />
               ))}
             </div>
