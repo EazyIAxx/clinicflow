@@ -1,6 +1,6 @@
 import { AgendaGrid } from "@/components/agenda/agenda-grid";
 import { formatDateKey, formatDayMonth, formatWeekdayShort } from "@/lib/agenda-time";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
+import type { Appointment, Professional } from "@/lib/agenda-types";
 
 export function AgendaWeekGrid({
   professional,

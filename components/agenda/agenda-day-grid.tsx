@@ -1,5 +1,5 @@
 import { AgendaGrid } from "@/components/agenda/agenda-grid";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
+import type { Appointment, Professional } from "@/lib/agenda-types";
 
 export function AgendaDayGrid({
   professionals,
@@ -24,7 +24,7 @@ export function AgendaDayGrid({
       columns={professionals.map((professional) => ({
         key: professional.id,
         title: professional.name,
-        subtitle: `${professional.role} · ${professional.room}`,
+        subtitle: `${professional.specialty} · ${professional.room}`,
       }))}
       appointmentsByColumn={appointmentsByColumn}
       onSlotClick={onSlotClick}

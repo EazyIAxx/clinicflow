@@ -21,8 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createAppointment } from "@/lib/actions/agenda";
+import type { Appointment, Professional } from "@/lib/agenda-types";
 import { formatDateKey, generateTimeSlots } from "@/lib/agenda-time";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
 
 const serviceOptions = [
   "Consulta de rotina",
@@ -76,32 +77,33 @@ export function NewAppointmentDialog({
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    const base = {
-      id: crypto.randomUUID(),
+    const result = await createAppointment({
       professionalId,
       date: formatDateKey(date),
       startTime,
       durationMinutes: duration,
-    } as const;
+      kind,
+      patientName: kind === "consulta" ? patientName : undefined,
+      service: kind === "consulta" ? service : undefined,
+      reason: kind === "bloqueio" ? reason || "Bloqueio" : undefined,
+      notes: kind === "consulta" ? notes || undefined : undefined,
+    });
 
-    const appointment: Appointment =
-      kind === "consulta"
-        ? {
-            ...base,
-            status: "confirmada",
-            kind: "consulta",
-            patientName,
-            service,
-            notes: notes || undefined,
-          }
-        : { ...base, status: "bloqueio", kind: "bloqueio", reason: reason || "Bloqueio" };
+    setIsSubmitting(false);
 
-    onCreate(appointment);
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onCreate(result.data);
     onOpenChange(false);
   }
 
@@ -273,9 +275,15 @@ export function NewAppointmentDialog({
             </div>
           )}
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {kind === "consulta" ? "Agendar consulta" : "Bloquear horário"}
+              {isSubmitting
+                ? "Salvando..."
+                : kind === "consulta"
+                  ? "Agendar consulta"
+                  : "Bloquear horário"}
             </Button>
           </DialogFooter>
         </form>

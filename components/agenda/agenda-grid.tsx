@@ -1,12 +1,61 @@
 import { AgendaAppointmentCard } from "@/components/agenda/agenda-appointment-card";
 import { durationToRowSpan, generateTimeSlots, timeToRowIndex } from "@/lib/agenda-time";
-import type { Appointment } from "@/lib/mock-agenda";
+import type { Appointment } from "@/lib/agenda-types";
 
 export type AgendaGridColumn = {
   key: string;
   title: string;
   subtitle?: string;
 };
+
+/**
+ * Consultas canceladas não são bloqueadas por conflito (lib/actions/agenda.ts
+ * exclui `status: "cancelada"` da checagem), então cancelar e reagendar no
+ * mesmo horário é um fluxo normal — sem esse layout, o card novo cobriria
+ * inteiramente o card cancelado (mesma linha/coluna do grid).
+ */
+function layoutOverlaps(appointments: Appointment[]) {
+  const withRange = appointments
+    .map((appointment) => {
+      const start = timeToRowIndex(appointment.startTime);
+      return { appointment, start, end: start + durationToRowSpan(appointment.durationMinutes) };
+    })
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+
+  const result: { appointment: Appointment; column: number; columns: number }[] = [];
+  let cluster: typeof withRange = [];
+  let clusterMaxEnd = -Infinity;
+
+  function flushCluster() {
+    if (cluster.length === 0) return;
+    const columnEnds: number[] = [];
+    for (const item of cluster) {
+      let column = columnEnds.findIndex((end) => end <= item.start);
+      if (column === -1) {
+        column = columnEnds.length;
+        columnEnds.push(item.end);
+      } else {
+        columnEnds[column] = item.end;
+      }
+      result.push({ appointment: item.appointment, column, columns: 0 });
+    }
+    const columns = columnEnds.length;
+    for (let i = result.length - cluster.length; i < result.length; i++) {
+      result[i].columns = columns;
+    }
+    cluster = [];
+    clusterMaxEnd = -Infinity;
+  }
+
+  for (const item of withRange) {
+    if (cluster.length > 0 && item.start >= clusterMaxEnd) flushCluster();
+    cluster.push(item);
+    clusterMaxEnd = Math.max(clusterMaxEnd, item.end);
+  }
+  flushCluster();
+
+  return result;
+}
 
 export function AgendaGrid({
   columns,
@@ -37,6 +86,7 @@ export function AgendaGrid({
 
       {columns.map((column) => {
         const appointments = appointmentsByColumn[column.key] ?? [];
+        const laidOut = layoutOverlaps(appointments);
         return (
           <div key={column.key} className="flex min-w-48 flex-1 flex-col border-r last:border-r-0">
             <div className="flex h-12 flex-col items-center justify-center border-b px-2 text-center">
@@ -58,13 +108,15 @@ export function AgendaGrid({
                   style={{ gridColumn: 1, gridRow: index + 1 }}
                 />
               ))}
-              {appointments.map((appointment) => (
+              {laidOut.map(({ appointment, column, columns }) => (
                 <div
                   key={appointment.id}
                   className="p-0.5"
                   style={{
                     gridColumn: 1,
                     gridRow: `${timeToRowIndex(appointment.startTime) + 1} / span ${durationToRowSpan(appointment.durationMinutes)}`,
+                    marginLeft: `${(column / columns) * 100}%`,
+                    width: `${100 / columns}%`,
                   }}
                 >
                   <AgendaAppointmentCard
