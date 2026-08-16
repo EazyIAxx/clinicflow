@@ -160,11 +160,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-agenda`
 - **Objetivo**: implementar a lógica real de agendamento e conectar à UI construída no M2.
 - **Entregas**:
-  - [ ] Schema Prisma de profissionais, salas e consultas
-  - [ ] Server Actions de criar/editar/cancelar/remarcar consulta
-  - [ ] Validação de conflito de horário e bloqueio de agenda
-  - [ ] Conectar UI de agenda (M2) aos dados reais
-- **Commit final**: `feat(backend): lógica de agendamento e integração com a UI`
+  - [x] Schema Prisma de profissionais e consultas — "sala" ficou como campo de texto no próprio profissional (não virou recurso independente), já que a UI nunca tratou sala como eixo reservável separado
+  - [x] Server Actions de criar/editar/cancelar/remarcar consulta
+  - [x] Validação de conflito de horário e bloqueio de agenda
+  - [x] Conectar UI de agenda (M2) aos dados reais — cadastro de profissionais ganhou um dialog próprio na Agenda (não existia antes), já que sem isso a agenda de uma clínica nova nasceria sempre vazia
+- **Commit final**: `feat(backend): lógica de agendamento e integração com a UI` ✅ (branch `feature/backend-agenda`, mergeada em `main`)
 
 ### M13. Backend de estoque
 

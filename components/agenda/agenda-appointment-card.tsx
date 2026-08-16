@@ -1,5 +1,5 @@
 import { statusMeta } from "@/lib/agenda-status";
-import type { Appointment } from "@/lib/mock-agenda";
+import type { Appointment } from "@/lib/agenda-types";
 import { cn } from "@/lib/utils";
 
 export function AgendaAppointmentCard({

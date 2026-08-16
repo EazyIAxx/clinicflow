@@ -24,15 +24,17 @@ enum UserStatus {
 }
 
 model Clinic {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  cnpj      String?
-  phone     String?
-  address   String?
-  hours     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     User[]
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  cnpj          String?
+  phone         String?
+  address       String?
+  hours         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  users         User[]
+  professionals Professional[]
+  appointments  Appointment[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -55,4 +57,60 @@ model User {
   verificationCodeHash      String?
   verificationCodeExpiresAt DateTime?
   verificationAttempts      Int       @default(0)
+}
+
+enum AppointmentStatus {
+  pendente
+  confirmada
+  remarcada
+  cancelada
+  bloqueio
+}
+
+enum AppointmentKind {
+  consulta
+  bloqueio
+}
+
+model Professional {
+  id           String        @id @default(uuid()) @db.Uuid
+  clinicId     String        @db.Uuid
+  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name         String
+  specialty    String
+  room         String
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+
+  @@index([clinicId])
+}
+
+/// `date`/`rescheduledFromDate` guardados como texto "yyyy-MM-dd" (não como
+/// DateTime) de propósito: é só uma chave de dia, sem componente de hora, e
+/// isso evita qualquer conversão de fuso horário entre o servidor e o grid —
+/// a mesma string que aparece na URL/grid é a que fica salva no banco.
+model Appointment {
+  id                  String            @id @default(uuid()) @db.Uuid
+  clinicId            String            @db.Uuid
+  clinic              Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  professionalId      String            @db.Uuid
+  professional        Professional      @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  date                String
+  startTime           String
+  durationMinutes     Int
+  status              AppointmentStatus
+  kind                AppointmentKind
+  patientName         String?
+  service             String?
+  reason              String?
+  notes               String?
+  rescheduledFromDate String?
+  rescheduledFromTime String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([clinicId, date])
+  @@index([professionalId, date])
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { AgendaDayGrid } from "@/components/agenda/agenda-day-grid";
 import { AgendaLegend } from "@/components/agenda/agenda-legend";
@@ -11,18 +12,29 @@ import {
   NewAppointmentDialog,
   type NewAppointmentDefaults,
 } from "@/components/agenda/new-appointment-dialog";
+import type { Appointment, Professional } from "@/lib/agenda-types";
 import { formatDateKey, getWeekDates } from "@/lib/agenda-time";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
+import {
+  cancelAppointment,
+  confirmAppointment,
+  removeBlock,
+  rescheduleAppointment,
+} from "@/lib/actions/agenda";
 
 export function AgendaView({
   professionals,
   initialAppointments,
   today,
+  canManage,
 }: {
   professionals: Professional[];
   initialAppointments: Appointment[];
   today: Date;
+  canManage: boolean;
 }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
   const [viewMode, setViewMode] = useState<AgendaViewMode>("dia");
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState("todos");
@@ -60,10 +72,12 @@ export function AgendaView({
   }
 
   function handleDaySlotClick(professionalId: string, time: string) {
+    if (!canManage) return;
     openNewDialog({ professionalId, date: selectedDate, time });
   }
 
   function handleWeekSlotClick(dateKey: string, time: string) {
+    if (!canManage) return;
     openNewDialog({
       professionalId: effectiveProfessional?.id,
       date: new Date(`${dateKey}T00:00:00`),
@@ -71,44 +85,49 @@ export function AgendaView({
     });
   }
 
-  function handleCreate(appointment: Appointment) {
+  function handleCreated(appointment: Appointment) {
     setAppointments((prev) => [...prev, appointment]);
+    router.refresh();
   }
 
   function handleConfirm(id: string) {
-    setAppointments((prev) =>
-      prev.map((appointment) =>
-        appointment.id === id ? { ...appointment, status: "confirmada" } : appointment,
-      ),
-    );
+    startTransition(async () => {
+      const result = await confirmAppointment(id);
+      if (result.data) {
+        setAppointments((prev) => prev.map((a) => (a.id === id ? result.data! : a)));
+        router.refresh();
+      }
+    });
   }
 
   function handleCancel(id: string) {
-    setAppointments((prev) =>
-      prev.map((appointment) =>
-        appointment.id === id ? { ...appointment, status: "cancelada" } : appointment,
-      ),
-    );
+    startTransition(async () => {
+      const result = await cancelAppointment(id);
+      if (result.data) {
+        setAppointments((prev) => prev.map((a) => (a.id === id ? result.data! : a)));
+        router.refresh();
+      }
+    });
   }
 
   function handleReschedule(id: string, date: Date, time: string) {
-    setAppointments((prev) =>
-      prev.map((appointment) =>
-        appointment.id === id
-          ? {
-              ...appointment,
-              status: "remarcada",
-              rescheduledFrom: { date: appointment.date, startTime: appointment.startTime },
-              date: formatDateKey(date),
-              startTime: time,
-            }
-          : appointment,
-      ),
-    );
+    startTransition(async () => {
+      const result = await rescheduleAppointment(id, formatDateKey(date), time);
+      if (result.data) {
+        setAppointments((prev) => prev.map((a) => (a.id === id ? result.data! : a)));
+        router.refresh();
+      }
+    });
   }
 
   function handleRemoveBlock(id: string) {
-    setAppointments((prev) => prev.filter((appointment) => appointment.id !== id));
+    startTransition(async () => {
+      const result = await removeBlock(id);
+      if (!result.error) {
+        setAppointments((prev) => prev.filter((appointment) => appointment.id !== id));
+        router.refresh();
+      }
+    });
   }
 
   const dayAppointments = appointments.filter(
@@ -128,9 +147,18 @@ export function AgendaView({
         onNewAppointment={() =>
           openNewDialog({ professionalId: selectedProfessionalId, date: selectedDate })
         }
+        canManage={canManage}
       />
 
       <AgendaLegend />
+
+      {professionals.length === 0 && (
+        <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
+          {canManage
+            ? 'Nenhum profissional cadastrado ainda. Clique em "Profissionais" para adicionar o primeiro.'
+            : "Nenhum profissional cadastrado ainda."}
+        </p>
+      )}
 
       {viewMode === "dia" ? (
         <AgendaDayGrid
@@ -157,7 +185,7 @@ export function AgendaView({
         onOpenChange={setIsNewDialogOpen}
         professionals={professionals}
         defaults={newDialogDefaults}
-        onCreate={handleCreate}
+        onCreate={handleCreated}
       />
 
       <AppointmentDetailsDialog
@@ -173,6 +201,7 @@ export function AgendaView({
         onCancel={handleCancel}
         onReschedule={handleReschedule}
         onRemoveBlock={handleRemoveBlock}
+        canManage={canManage}
       />
     </div>
   );

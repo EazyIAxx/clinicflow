@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { statusMeta } from "@/lib/agenda-status";
 import { generateTimeSlots } from "@/lib/agenda-time";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
+import type { Appointment, Professional } from "@/lib/agenda-types";
 
 function formatDisplayDate(dateKey: string): string {
   return dateKey.split("-").reverse().join("/");
@@ -37,6 +37,7 @@ export function AppointmentDetailsDialog({
   onCancel,
   onReschedule,
   onRemoveBlock,
+  canManage,
 }: {
   appointment: Appointment | null;
   professional?: Professional;
@@ -46,6 +47,7 @@ export function AppointmentDetailsDialog({
   onCancel: (id: string) => void;
   onReschedule: (id: string, date: Date, time: string) => void;
   onRemoveBlock: (id: string) => void;
+  canManage: boolean;
 }) {
   const timeSlots = generateTimeSlots();
   const [isRescheduling, setIsRescheduling] = useState(false);
@@ -147,7 +149,7 @@ export function AppointmentDetailsDialog({
         </div>
 
         <DialogFooter className="flex-wrap">
-          {isBlock ? (
+          {!canManage ? null : isBlock ? (
             <Button
               variant="destructive"
               onClick={() => {
