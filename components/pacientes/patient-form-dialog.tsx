@@ -23,8 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { professionals } from "@/lib/mock-agenda";
-import { deriveInitials, type Patient } from "@/lib/mock-pacientes";
+import { createPatient, updatePatient } from "@/lib/actions/patients";
+import type { Professional } from "@/lib/agenda-types";
+import type { Patient } from "@/lib/patient-types";
 import { patientStatusMeta, type PatientStatus } from "@/lib/patient-status";
 
 const NONE_PROFESSIONAL = "nenhum";
@@ -33,12 +34,14 @@ export function PatientFormDialog({
   open,
   onOpenChange,
   patient,
+  professionals,
   initialValues,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patient?: Patient;
+  professionals: Professional[];
   /** Pré-preenchimento usado só na criação (ex.: conversão de lead do CRM). */
   initialValues?: { name?: string; phone?: string; email?: string };
   onSubmit: (patient: Patient) => void;
@@ -72,17 +75,16 @@ export function PatientFormDialog({
   );
   const [notes, setNotes] = useState(patient?.notes ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
     const now = format(new Date(), "yyyy-MM-dd");
-
-    onSubmit({
-      id: patient?.id ?? crypto.randomUUID(),
+    const input = {
       name,
-      initials: deriveInitials(name),
       birthDate: birthDate ? format(birthDate, "yyyy-MM-dd") : (patient?.birthDate ?? now),
       phone,
       email: email || undefined,
@@ -97,9 +99,18 @@ export function PatientFormDialog({
         ? format(healthInsuranceValidUntil, "yyyy-MM-dd")
         : undefined,
       notes: notes || undefined,
-      createdAt: patient?.createdAt ?? now,
-      lastVisitAt: patient?.lastVisitAt,
-    });
+    };
+
+    const result = patient ? await updatePatient(patient.id, input) : await createPatient(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -284,9 +295,15 @@ export function PatientFormDialog({
             />
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Cadastrar paciente"}
+              {isSubmitting
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Cadastrar paciente"}
             </Button>
           </DialogFooter>
         </form>

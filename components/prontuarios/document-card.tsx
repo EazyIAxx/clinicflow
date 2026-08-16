@@ -1,5 +1,6 @@
 import {
   Eye,
+  ExternalLink,
   File,
   FileImage,
   FileText,
@@ -7,6 +8,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react";
+import { useTransition } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,11 +16,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getDocumentUrl } from "@/lib/actions/documents";
 import { accessRoleLabels, documentCategoryMeta } from "@/lib/document-access";
-import type { DocumentFileType, PatientDocument } from "@/lib/mock-documentos";
+import type { DocumentFileType, PatientDocument } from "@/lib/patient-types";
 
 const fileTypeIcon: Record<DocumentFileType, LucideIcon> = {
   pdf: FileText,
@@ -32,13 +36,25 @@ export function DocumentCard({
   document,
   patientName,
   onRemove,
+  isRemoving,
 }: {
   document: PatientDocument;
   patientName?: string;
   onRemove: (document: PatientDocument) => void;
+  isRemoving?: boolean;
 }) {
   const categoryMeta = documentCategoryMeta[document.category];
   const FileIcon = fileTypeIcon[document.fileType];
+  const [isOpening, startOpenTransition] = useTransition();
+
+  function handleOpen() {
+    startOpenTransition(async () => {
+      const result = await getDocumentUrl(document.id);
+      if (result.data) {
+        window.open(result.data, "_blank", "noopener,noreferrer");
+      }
+    });
+  }
 
   return (
     <div className="bg-card flex flex-col gap-3 rounded-lg border p-4">
@@ -54,7 +70,16 @@ export function DocumentCard({
             <span className="sr-only">Ações</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem variant="destructive" onClick={() => onRemove(document)}>
+            <DropdownMenuItem disabled={isOpening} onClick={handleOpen}>
+              <ExternalLink />
+              Abrir arquivo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={isRemoving}
+              onClick={() => onRemove(document)}
+            >
               <Trash2 />
               Remover
             </DropdownMenuItem>

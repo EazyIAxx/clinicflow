@@ -14,7 +14,7 @@ import {
   documentCategoryMeta,
   type DocumentCategory,
 } from "@/lib/document-access";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Patient } from "@/lib/patient-types";
 
 export function ProntuariosToolbar({
   search,

@@ -182,11 +182,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-prontuario`
 - **Objetivo**: implementar cadastro real de pacientes e armazenamento de arquivos, conectando à UI construída no M4.
 - **Entregas**:
-  - [ ] Schema Prisma de pacientes e documentos
-  - [ ] Upload real de arquivos via Supabase Storage
-  - [ ] RLS de controle de acesso por perfil em tabelas e storage
-  - [ ] Conectar UI de pacientes/prontuário (M4) aos dados reais
-- **Commit final**: `feat(backend): cadastro de pacientes, upload e controle de acesso a arquivos`
+  - [x] Schema Prisma de pacientes e documentos
+  - [x] Upload real de arquivos via Supabase Storage — bucket privado `documentos`, path `{clinicId}/{patientId}/{documentId}-{nome}`, acesso via signed URL gerada no servidor
+  - [x] RLS de controle de acesso por perfil em tabelas e storage — categoria "exame" escondida de recepcionista virou regra de banco (antes só decorativa na UI)
+  - [x] Conectar UI de pacientes/prontuário (M4) aos dados reais
+- **Commit final**: `feat(backend): cadastro de pacientes, upload e controle de acesso a arquivos` ✅ (branch `feature/backend-prontuario`, mergeada em `main`)
 
 ### M15. Backend de relatórios
 

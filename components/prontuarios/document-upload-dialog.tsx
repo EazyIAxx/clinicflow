@@ -1,10 +1,8 @@
 "use client";
 
-import { format } from "date-fns";
 import { Upload } from "lucide-react";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
-import { DatePicker } from "@/components/shared/date-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,26 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { uploadDocument } from "@/lib/actions/documents";
 import {
   documentCategories,
   documentCategoryMeta,
   type DocumentCategory,
 } from "@/lib/document-access";
-import type { DocumentFileType, PatientDocument } from "@/lib/mock-documentos";
-import type { Patient } from "@/lib/mock-pacientes";
-
-function inferFileType(fileName: string): DocumentFileType {
-  const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
-  if (extension === "pdf") return "pdf";
-  if (["jpg", "jpeg", "png", "webp"].includes(extension)) return "image";
-  return "doc";
-}
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
+import { formatFileSize, type Patient, type PatientDocument } from "@/lib/patient-types";
 
 export function DocumentUploadDialog({
   open,
@@ -58,9 +43,9 @@ export function DocumentUploadDialog({
 }) {
   const [patientId, setPatientId] = useState(fixedPatientId ?? patients[0]?.id ?? "");
   const [category, setCategory] = useState<DocumentCategory>("exame");
-  const [uploadedAt, setUploadedAt] = useState<Date | undefined>(new Date());
-  const [file, setFile] = useState<{ name: string; sizeLabel: string; type: DocumentFileType }>();
+  const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
   const fixedPatient = fixedPatientId
     ? patients.find((patient) => patient.id === fixedPatientId)
@@ -69,28 +54,25 @@ export function DocumentUploadDialog({
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0];
     if (!selected) return;
-    setFile({
-      name: selected.name,
-      sizeLabel: formatFileSize(selected.size),
-      type: inferFileType(selected.name),
-    });
+    setFile(selected);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!patientId || !file) return;
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: crypto.randomUUID(),
-      patientId,
-      name: file.name,
-      category,
-      fileType: file.type,
-      sizeLabel: file.sizeLabel,
-      uploadedAt: format(uploadedAt ?? new Date(), "yyyy-MM-dd"),
-      uploadedBy: "Ana Souza",
-    });
+    const result = await uploadDocument({ patientId, category, file });
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível enviar o arquivo. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -132,31 +114,25 @@ export function DocumentUploadDialog({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label>Categoria</Label>
-              <Select
-                value={category}
-                onValueChange={(value) => setCategory(value as DocumentCategory)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {(value: string) => documentCategoryMeta[value as DocumentCategory].label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {documentCategories.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {documentCategoryMeta[option].label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Data</Label>
-              <DatePicker date={uploadedAt} onDateChange={setUploadedAt} className="w-full" />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Categoria</Label>
+            <Select
+              value={category}
+              onValueChange={(value) => setCategory(value as DocumentCategory)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue>
+                  {(value: string) => documentCategoryMeta[value as DocumentCategory].label}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {documentCategories.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {documentCategoryMeta[option].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -168,7 +144,8 @@ export function DocumentUploadDialog({
               <Upload className="text-muted-foreground size-5" />
               {file ? (
                 <span className="font-medium">
-                  {file.name} <span className="text-muted-foreground">({file.sizeLabel})</span>
+                  {file.name}{" "}
+                  <span className="text-muted-foreground">({formatFileSize(file.size)})</span>
                 </span>
               ) : (
                 <span className="text-muted-foreground">Clique para selecionar um arquivo</span>
@@ -183,9 +160,11 @@ export function DocumentUploadDialog({
             </label>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting || !patientId || !file}>
-              Adicionar documento
+              {isSubmitting ? "Enviando..." : "Adicionar documento"}
             </Button>
           </DialogFooter>
         </form>

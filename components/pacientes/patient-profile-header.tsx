@@ -5,21 +5,22 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { responsibleProfessionalName, type Patient } from "@/lib/mock-pacientes";
+import type { Patient } from "@/lib/patient-types";
 import { patientStatusMeta } from "@/lib/patient-status";
 
 export function PatientProfileHeader({
   patient,
   referenceDate,
+  professionalName,
   onEdit,
 }: {
   patient: Patient;
   referenceDate: Date;
+  professionalName?: string;
   onEdit: () => void;
 }) {
   const statusInfo = patientStatusMeta[patient.status];
   const age = differenceInYears(referenceDate, new Date(`${patient.birthDate}T00:00:00`));
-  const professionalName = responsibleProfessionalName(patient);
 
   return (
     <Card>

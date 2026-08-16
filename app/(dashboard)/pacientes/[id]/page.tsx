@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { PatientProfileView } from "@/components/pacientes/patient-profile-view";
-import { getMockDocuments } from "@/lib/mock-documentos";
-import { getMockPatients } from "@/lib/mock-pacientes";
+import { mapProfessional } from "@/lib/agenda-types";
+import { getCurrentUser } from "@/lib/auth";
+import { mapDocument, mapPatient } from "@/lib/patient-types";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,7 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const patient = getMockPatients(new Date()).find((candidate) => candidate.id === id);
+  const patient = await prisma.patient.findUnique({ where: { id } });
 
   return {
     title: patient ? `${patient.name} — ClinicFlow` : "Paciente — ClinicFlow",
@@ -22,20 +24,40 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PatientProfilePage({ params }: PageProps) {
   const { id } = await params;
-  const today = new Date();
-  const patient = getMockPatients(today).find((candidate) => candidate.id === id);
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/login");
 
-  if (!patient) {
-    notFound();
-  }
+  const patientRow = await prisma.patient.findUnique({
+    where: { id, clinicId: currentUser.clinicId },
+  });
+  if (!patientRow) notFound();
 
-  const documents = getMockDocuments(today).filter((document) => document.patientId === id);
+  const [documentRows, professionalRows] = await Promise.all([
+    prisma.document.findMany({
+      where: {
+        clinicId: currentUser.clinicId,
+        patientId: id,
+        ...(currentUser.role === "recepcionista" ? { category: { not: "exame" } } : {}),
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.professional.findMany({
+      where: { clinicId: currentUser.clinicId },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  const responsibleProfessional = professionalRows.find(
+    (professional) => professional.id === patientRow.responsibleProfessionalId,
+  );
 
   return (
     <PatientProfileView
-      initialPatient={patient}
-      initialDocuments={documents}
-      referenceDate={today}
+      initialPatient={mapPatient(patientRow)}
+      initialDocuments={documentRows.map(mapDocument)}
+      professionals={professionalRows.map(mapProfessional)}
+      professionalName={responsibleProfessional?.name}
+      referenceDate={new Date()}
     />
   );
 }
