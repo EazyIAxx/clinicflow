@@ -22,13 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createItem, updateItem } from "@/lib/actions/estoque";
 import {
   categories,
   categoryLabels,
   unitOptions,
   type StockCategory,
   type StockItem,
-} from "@/lib/mock-estoque";
+} from "@/lib/estoque-types";
 
 export function ItemFormDialog({
   open,
@@ -54,13 +55,14 @@ export function ItemFormDialog({
   );
   const [supplier, setSupplier] = useState(item?.supplier ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: item?.id ?? crypto.randomUUID(),
+    const input = {
       name,
       category,
       unit,
@@ -69,7 +71,18 @@ export function ItemFormDialog({
       batch: batch || undefined,
       expiresAt: expiresAt ? format(expiresAt, "yyyy-MM-dd") : undefined,
       supplier: supplier || undefined,
-    });
+    };
+
+    const result = item ? await updateItem(item.id, input) : await createItem(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -191,9 +204,11 @@ export function ItemFormDialog({
             />
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Cadastrar item"}
+              {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar item"}
             </Button>
           </DialogFooter>
         </form>

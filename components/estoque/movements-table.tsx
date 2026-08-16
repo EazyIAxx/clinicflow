@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { StockItem, StockMovement } from "@/lib/mock-estoque";
+import type { StockItem, StockMovement } from "@/lib/estoque-types";
 
 export function MovementsTable({
   movements,

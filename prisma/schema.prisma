@@ -24,17 +24,19 @@ enum UserStatus {
 }
 
 model Clinic {
-  id            String         @id @default(uuid()) @db.Uuid
-  name          String
-  cnpj          String?
-  phone         String?
-  address       String?
-  hours         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  users         User[]
-  professionals Professional[]
-  appointments  Appointment[]
+  id             String          @id @default(uuid()) @db.Uuid
+  name           String
+  cnpj           String?
+  phone          String?
+  address        String?
+  hours          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  users          User[]
+  professionals  Professional[]
+  appointments   Appointment[]
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -116,4 +118,53 @@ model Appointment {
 
   @@index([clinicId, date])
   @@index([professionalId, date])
+}
+
+enum StockCategory {
+  medicamento
+  material
+  insumo
+  equipamento
+}
+
+enum StockMovementType {
+  entrada
+  saida
+}
+
+model StockItem {
+  id          String          @id @default(uuid()) @db.Uuid
+  clinicId    String          @db.Uuid
+  clinic      Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name        String
+  category    StockCategory
+  unit        String
+  quantity    Int             @default(0)
+  minQuantity Int             @default(0)
+  batch       String?
+  /// yyyy-MM-dd — mesmo padrão do Appointment.date, evita conversão de fuso.
+  expiresAt   String?
+  supplier    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  movements   StockMovement[]
+
+  @@index([clinicId])
+}
+
+model StockMovement {
+  id          String            @id @default(uuid()) @db.Uuid
+  clinicId    String            @db.Uuid
+  clinic      Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  itemId      String            @db.Uuid
+  item        StockItem         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  type        StockMovementType
+  quantity    Int
+  date        String
+  reason      String
+  performedBy String
+  createdAt   DateTime          @default(now())
+
+  @@index([clinicId, date])
+  @@index([itemId])
 }

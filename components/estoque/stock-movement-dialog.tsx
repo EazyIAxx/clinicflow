@@ -22,12 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { registerMovement } from "@/lib/actions/estoque";
 import {
   movementReasons,
   type StockItem,
-  type StockMovement,
+  type StockItemMovementResult,
   type StockMovementType,
-} from "@/lib/mock-estoque";
+} from "@/lib/estoque-types";
 
 export function StockMovementDialog({
   open,
@@ -38,30 +39,39 @@ export function StockMovementDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: StockItem | null;
-  onSubmit: (movement: StockMovement) => void;
+  onSubmit: (result: StockItemMovementResult) => void;
 }) {
   const [type, setType] = useState<StockMovementType>("entrada");
   const [quantity, setQuantity] = useState(1);
   const [reason, setReason] = useState(movementReasons[0]);
   const [date, setDate] = useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
   if (!item) return null;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!item) return;
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: crypto.randomUUID(),
+    const result = await registerMovement({
       itemId: item.id,
       type,
       quantity,
       date: format(date, "yyyy-MM-dd"),
       reason,
-      performedBy: "Ana Souza",
     });
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível registrar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -133,9 +143,15 @@ export function StockMovementDialog({
             </Select>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {type === "entrada" ? "Registrar entrada" : "Registrar saída"}
+              {isSubmitting
+                ? "Registrando..."
+                : type === "entrada"
+                  ? "Registrar entrada"
+                  : "Registrar saída"}
             </Button>
           </DialogFooter>
         </form>
