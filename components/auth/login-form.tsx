@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,17 +14,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { login } from "@/lib/actions/auth";
 
 export function LoginForm() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
-    // Login real (Supabase Auth) chega no M6 — por enquanto só simula o acesso ao dashboard.
-    router.push("/dashboard");
-  }
+  const [state, formAction, isPending] = useActionState(login, {});
 
   return (
     <Card>
@@ -34,7 +26,7 @@ export function LoginForm() {
         <CardDescription>Acesse sua conta para gerenciar a clínica.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-4" action={formAction}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" name="email" type="email" placeholder="voce@clinica.com" required />
@@ -48,8 +40,9 @@ export function LoginForm() {
             </div>
             <Input id="password" name="password" type="password" required />
           </div>
-          <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Entrando..." : "Entrar"}
+          {state.error && <p className="text-destructive text-sm">{state.error}</p>}
+          <Button type="submit" className="mt-2 w-full" disabled={isPending}>
+            {isPending ? "Entrando..." : "Entrar"}
           </Button>
         </form>
       </CardContent>

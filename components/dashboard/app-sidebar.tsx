@@ -27,9 +27,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { dashboardHome, mockUser, navGroups } from "@/lib/nav-items";
+import { logout } from "@/lib/actions/auth";
+import type { getCurrentUser } from "@/lib/auth";
+import { deriveInitials } from "@/lib/mock-pacientes";
+import { userRoleLabels } from "@/lib/mock-usuarios";
+import { dashboardHome, navGroups } from "@/lib/nav-items";
 
-export function AppSidebar() {
+export function AppSidebar({ user }: { user: Awaited<ReturnType<typeof getCurrentUser>> }) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -92,18 +96,22 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger render={<SidebarMenuButton size="lg" />}>
                 <Avatar className="size-7 rounded-lg">
-                  <AvatarFallback className="rounded-lg">{mockUser.initials}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user ? deriveInitials(user.name) : "?"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col overflow-hidden text-left">
-                  <span className="truncate text-sm font-medium">{mockUser.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">{mockUser.role}</span>
+                  <span className="truncate text-sm font-medium">{user?.name ?? "..."}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user ? userRoleLabels[user.role] : ""}
+                  </span>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium">{mockUser.name}</span>
-                    <span className="text-muted-foreground text-xs">{mockUser.email}</span>
+                    <span className="text-sm font-medium">{user?.name ?? "..."}</span>
+                    <span className="text-muted-foreground text-xs">{user?.email ?? ""}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -112,7 +120,12 @@ export function AppSidebar() {
                   Configurações
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/login" />} onClick={closeOnMobile}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    closeOnMobile();
+                    logout();
+                  }}
+                >
                   <LogOut />
                   Sair
                 </DropdownMenuItem>

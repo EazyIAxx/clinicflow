@@ -147,13 +147,13 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-auth-db`
 - **Objetivo**: colocar Supabase e Prisma no ar e substituir o mock de autenticação do M1 por login real com permissões por perfil.
 - **Entregas**:
-  - [ ] Configurar projeto Supabase (Postgres, Auth, Storage)
-  - [ ] Definir schema Prisma inicial (usuários, perfis/roles, clínica)
-  - [ ] Rodar migrations iniciais
-  - [ ] Implementar login/registro real com Supabase Auth
-  - [ ] Implementar RLS e checagem de permissões por perfil (recepcionista, profissional, gestor/admin)
-  - [ ] Configurar Resend e enviar e-mails de autenticação (confirmação de cadastro, redefinição de senha, convite de usuário)
-- **Commit final**: `feat(backend): banco de dados, autenticação e permissões reais`
+  - [x] Configurar projeto Supabase (Postgres, Auth) — Storage fica pro M14 (upload de arquivos)
+  - [x] Definir schema Prisma inicial (usuários, perfis/roles, clínica)
+  - [x] Rodar migrations iniciais
+  - [x] Implementar login/registro real com Supabase Auth
+  - [x] Implementar RLS e checagem de permissões por perfil (recepcionista, profissional, gestor/admin) — checagem de role feita no servidor (Configurações); demais módulos ganham a própria checagem no seu milestone de backend
+  - [ ] Configurar Resend e enviar e-mails de autenticação — e-mails de confirmação/convite já funcionam via Supabase Auth (provedor padrão); trocar pra Resend é config manual no dashboard do Supabase (SMTP settings), não código
+- **Commit final**: `feat(backend): banco de dados, autenticação e permissões reais` ✅ (branch `feature/backend-auth-db`, mergeada em `main`)
 
 ### M12. Backend de agendamento
 

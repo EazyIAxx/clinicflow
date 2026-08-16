@@ -1,7 +1,8 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { ClinicaForm } from "@/components/configuracoes/clinica-form";
 import { PermissionsTable } from "@/components/configuracoes/permissions-table";
@@ -20,10 +21,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { removeUser } from "@/lib/actions/users";
 import type { SystemUser } from "@/lib/mock-usuarios";
 
 export function ConfiguracoesView({ initialUsers }: { initialUsers: SystemUser[] }) {
-  const [users, setUsers] = useState<SystemUser[]>(initialUsers);
+  const router = useRouter();
+  const [isRemoving, startRemoveTransition] = useTransition();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogKey, setDialogKey] = useState(0);
@@ -43,18 +46,18 @@ export function ConfiguracoesView({ initialUsers }: { initialUsers: SystemUser[]
     setIsDialogOpen(true);
   }
 
-  function handleSubmit(user: SystemUser) {
-    setUsers((prev) => {
-      const exists = prev.some((existing) => existing.id === user.id);
-      return exists
-        ? prev.map((existing) => (existing.id === user.id ? user : existing))
-        : [...prev, user];
-    });
+  function handleSuccess() {
+    setIsDialogOpen(false);
+    router.refresh();
   }
 
   function handleConfirmDelete() {
     if (!userToDelete) return;
-    setUsers((prev) => prev.filter((existing) => existing.id !== userToDelete.id));
+    const id = userToDelete.id;
+    startRemoveTransition(async () => {
+      await removeUser(id);
+      router.refresh();
+    });
     setUserToDelete(null);
   }
 
@@ -77,7 +80,7 @@ export function ConfiguracoesView({ initialUsers }: { initialUsers: SystemUser[]
               Convidar usuário
             </Button>
           </div>
-          <UsuariosTable users={users} onEdit={openEditDialog} onDelete={setUserToDelete} />
+          <UsuariosTable users={initialUsers} onEdit={openEditDialog} onDelete={setUserToDelete} />
         </TabsContent>
 
         <TabsContent value="permissoes" className="mt-4 flex flex-col gap-4">
@@ -103,7 +106,7 @@ export function ConfiguracoesView({ initialUsers }: { initialUsers: SystemUser[]
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         user={editingUser}
-        onSubmit={handleSubmit}
+        onSuccess={handleSuccess}
       />
 
       <AlertDialog
@@ -120,7 +123,11 @@ export function ConfiguracoesView({ initialUsers }: { initialUsers: SystemUser[]
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleConfirmDelete}>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isRemoving}
+              onClick={handleConfirmDelete}
+            >
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>
