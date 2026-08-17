@@ -7,10 +7,12 @@ export function ProceduresToolbar({
   search,
   onSearchChange,
   onNewProcedure,
+  canManage,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
   onNewProcedure: () => void;
+  canManage: boolean;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -23,10 +25,12 @@ export function ProceduresToolbar({
           className="w-full pl-8 sm:w-56"
         />
       </div>
-      <Button onClick={onNewProcedure}>
-        <Plus />
-        Novo procedimento
-      </Button>
+      {canManage && (
+        <Button onClick={onNewProcedure}>
+          <Plus />
+          Novo procedimento
+        </Button>
+      )}
     </div>
   );
 }

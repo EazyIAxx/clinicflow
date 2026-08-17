@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { chargeStatusMeta, type ChargeDisplayStatus } from "@/lib/finance-status";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Patient } from "@/lib/patient-types";
 
 const filterStatusOrder: ChargeDisplayStatus[] = ["pendente", "atrasado", "pago", "cancelado"];
 

@@ -214,11 +214,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-orcamentos-financeiro`
 - **Objetivo**: implementar orçamentos e cobranças reais, conectando às UIs construídas no M7 e M8.
 - **Entregas**:
-  - [ ] Schema Prisma de procedimentos, orçamentos e cobranças
-  - [ ] Server Actions de criar/aprovar orçamento e gerar cobrança
-  - [ ] Registro real de pagamentos e cálculo de inadimplência
-  - [ ] Conectar UI de orçamentos (M7) e financeiro (M8) aos dados reais
-- **Commit final**: `feat(backend): orçamentos e financeiro reais`
+  - [x] Schema Prisma de procedimentos, orçamentos e cobranças
+  - [x] Server Actions de criar/aprovar orçamento e gerar cobrança — aprovação de orçamento cria automaticamente uma cobrança vinculada (idempotente)
+  - [x] Registro real de pagamentos — despesas com status/marca de pago
+  - [x] Conectar UI de orçamentos (M7) e financeiro (M8) aos dados reais — módulo financeiro restrito a gestor; orçamentos liberado a recepcionista+gestor
+- **Commit final**: `feat(backend): orçamentos e financeiro reais` ✅ (branch `feature/backend-orcamentos-financeiro`, mergeada em `main`)
 
 ### M18. Backend de automações
 

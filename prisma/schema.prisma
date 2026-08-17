@@ -41,6 +41,10 @@ model Clinic {
   documents      Document[]
   leads          Lead[]
   leadInteractions LeadInteraction[]
+  procedures     Procedure[]
+  budgets        Budget[]
+  charges        Charge[]
+  expenses       Expense[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -94,6 +98,7 @@ model Professional {
   appointments  Appointment[]
   patients      Patient[]
   leads         Lead[]
+  budgets       Budget[]
 
   @@index([clinicId])
 }
@@ -204,6 +209,8 @@ model Patient {
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
   documents                  Document[]
+  budgets                    Budget[]
+  charges                    Charge[]
 
   @@index([clinicId])
   @@index([responsibleProfessionalId])
@@ -296,4 +303,145 @@ model LeadInteraction {
   createdAt DateTime         @default(now())
 
   @@index([clinicId, leadId])
+}
+
+model Procedure {
+  id              String       @id @default(uuid()) @db.Uuid
+  clinicId        String       @db.Uuid
+  clinic          Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name            String
+  category        String
+  price           Decimal      @db.Decimal(10, 2)
+  durationMinutes Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  budgetItems     BudgetItem[]
+
+  @@index([clinicId])
+}
+
+enum BudgetStatus {
+  rascunho
+  enviado
+  aprovado
+  recusado
+  expirado
+}
+
+model Budget {
+  id                         String        @id @default(uuid()) @db.Uuid
+  clinicId                   String        @db.Uuid
+  clinic                     Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId                  String        @db.Uuid
+  patient                    Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  responsibleProfessionalId  String?       @db.Uuid
+  responsibleProfessional    Professional? @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
+  discountPercent            Decimal       @default(0) @db.Decimal(5, 2)
+  /// yyyy-MM-dd
+  validUntil                 String
+  status                     BudgetStatus  @default(rascunho)
+  notes                      String?
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  items                      BudgetItem[]
+  charges                    Charge[]
+
+  @@index([clinicId])
+  @@index([patientId])
+}
+
+model BudgetItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  budgetId    String    @db.Uuid
+  budget      Budget    @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  procedureId String    @db.Uuid
+  procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Restrict)
+  /// Valor do item no momento da criação do orçamento — pode divergir do
+  /// preço atual da tabela de procedimentos.
+  amount      Decimal   @db.Decimal(10, 2)
+
+  @@index([budgetId])
+}
+
+enum ChargeSourceType {
+  orcamento
+  consulta
+}
+
+enum ChargeStatus {
+  pendente
+  pago
+  cancelado
+}
+
+enum PaymentMethod {
+  dinheiro
+  cartao_credito
+  cartao_debito
+  pix
+  boleto
+}
+
+model Charge {
+  id            String           @id @default(uuid()) @db.Uuid
+  clinicId      String           @db.Uuid
+  clinic        Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId     String           @db.Uuid
+  patient       Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  sourceType    ChargeSourceType
+  budgetId      String?          @db.Uuid
+  budget        Budget?          @relation(fields: [budgetId], references: [id], onDelete: SetNull)
+  description   String
+  amount        Decimal          @db.Decimal(10, 2)
+  /// yyyy-MM-dd
+  dueDate       String
+  status        ChargeStatus     @default(pendente)
+  paymentMethod PaymentMethod?
+  /// yyyy-MM-dd
+  paidAt        String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([clinicId])
+  @@index([patientId])
+  @@index([budgetId])
+}
+
+enum ExpenseCategory {
+  aluguel
+  salarios
+  fornecedores
+  marketing
+  utilidades
+  outros
+}
+
+enum ExpenseStatus {
+  pendente
+  pago
+}
+
+enum ExpenseRecurrence {
+  mensal
+  anual
+}
+
+model Expense {
+  id          String             @id @default(uuid()) @db.Uuid
+  clinicId    String             @db.Uuid
+  clinic      Clinic             @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  description String
+  category    ExpenseCategory
+  amount      Decimal            @db.Decimal(10, 2)
+  /// yyyy-MM-dd
+  dueDate     String
+  status      ExpenseStatus      @default(pendente)
+  /// yyyy-MM-dd
+  paidAt      String?
+  isRecurring Boolean            @default(false)
+  recurrence  ExpenseRecurrence?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([clinicId])
 }

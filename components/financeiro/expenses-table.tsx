@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { expenseStatusMeta } from "@/lib/finance-status";
-import { getExpenseDisplayStatus, type Expense } from "@/lib/mock-financeiro";
+import { getExpenseDisplayStatus, type Expense } from "@/lib/financeiro-types";
 import { formatCurrency } from "@/lib/utils";
 
 const formatDate = (date: string) => date.split("-").reverse().join("/");

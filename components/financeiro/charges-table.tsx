@@ -18,8 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { chargeStatusMeta } from "@/lib/finance-status";
-import { getChargeDisplayStatus, type Charge } from "@/lib/mock-financeiro";
-import type { Patient } from "@/lib/mock-pacientes";
+import { getChargeDisplayStatus, type Charge } from "@/lib/financeiro-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
 const formatDate = (date: string) => date.split("-").reverse().join("/");

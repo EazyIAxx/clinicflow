@@ -21,8 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Charge } from "@/lib/mock-financeiro";
-import { paymentMethodLabels, paymentMethods, type PaymentMethod } from "@/lib/mock-financeiro";
+import { registerPayment } from "@/lib/actions/financeiro";
+import type { Charge, PaymentMethod } from "@/lib/financeiro-types";
+import { paymentMethodLabels, paymentMethods } from "@/lib/financeiro-types";
 import { formatCurrency } from "@/lib/utils";
 
 export function PaymentDialog({
@@ -39,18 +40,27 @@ export function PaymentDialog({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [paidAt, setPaidAt] = useState<Date | undefined>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!charge) return;
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      ...charge,
-      status: "pago",
+    const result = await registerPayment(charge.id, {
       paymentMethod,
       paidAt: format(paidAt ?? new Date(), "yyyy-MM-dd"),
     });
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível registrar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -91,9 +101,11 @@ export function PaymentDialog({
             <DatePicker date={paidAt} onDateChange={setPaidAt} className="w-full" />
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting || !charge}>
-              Confirmar pagamento
+              {isSubmitting ? "Registrando..." : "Confirmar pagamento"}
             </Button>
           </DialogFooter>
         </form>

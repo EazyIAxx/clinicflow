@@ -17,10 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Budget } from "@/lib/mock-orcamentos";
-import { computeBudgetTotals } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
 import { budgetStatusMeta } from "@/lib/orcamento-status";
+import { computeBudgetTotals, type Budget } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
 const formatDate = (date: string) => date.split("-").reverse().join("/");
@@ -31,12 +30,14 @@ export function OrcamentosTable({
   onView,
   onEdit,
   onDelete,
+  canManage,
 }: {
   budgets: Budget[];
   patientsById: Record<string, Patient>;
   onView: (budget: Budget) => void;
   onEdit: (budget: Budget) => void;
   onDelete: (budget: Budget) => void;
+  canManage: boolean;
 }) {
   return (
     <div className="rounded-lg border">
@@ -91,15 +92,19 @@ export function OrcamentosTable({
                         <Eye />
                         Ver orçamento
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(budget)}>
-                        <Pencil />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem variant="destructive" onClick={() => onDelete(budget)}>
-                        <Trash2 />
-                        Excluir
-                      </DropdownMenuItem>
+                      {canManage && (
+                        <>
+                          <DropdownMenuItem onClick={() => onEdit(budget)}>
+                            <Pencil />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem variant="destructive" onClick={() => onDelete(budget)}>
+                            <Trash2 />
+                            Excluir
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

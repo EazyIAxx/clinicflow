@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import type { getCashflowTrend } from "@/lib/mock-financeiro";
+import type { getCashflowTrend } from "@/lib/financeiro-types";
 
 const chartConfig = {
   revenue: { label: "Receita", theme: { light: "#10b981", dark: "#34d399" } },

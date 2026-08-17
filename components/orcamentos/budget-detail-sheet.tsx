@@ -13,31 +13,36 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { computeBudgetTotals, type Budget } from "@/lib/mock-orcamentos";
-import { responsibleProfessionalName, type Patient } from "@/lib/mock-pacientes";
-import { getMockProcedures } from "@/lib/mock-procedimentos";
+import type { Professional } from "@/lib/agenda-types";
 import { budgetStatusMeta, type BudgetStatus } from "@/lib/orcamento-status";
+import { computeBudgetTotals, type Budget, type Procedure } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
-const procedures = getMockProcedures();
 const formatDate = (date: string) => date.split("-").reverse().join("/");
 
 export function BudgetDetailSheet({
   budget,
   patient,
+  professionals,
+  procedures,
   open,
   onOpenChange,
   onStatusChange,
   onEdit,
   onDelete,
+  canManage,
 }: {
   budget: Budget | null;
   patient: Patient | undefined;
+  professionals: Professional[];
+  procedures: Procedure[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStatusChange: (budgetId: string, status: BudgetStatus) => void;
   onEdit: (budget: Budget) => void;
   onDelete: (budget: Budget) => void;
+  canManage: boolean;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -45,6 +50,10 @@ export function BudgetDetailSheet({
     ? computeBudgetTotals(budget)
     : { subtotal: 0, discountAmount: 0, total: 0 };
   const statusInfo = budget ? budgetStatusMeta[budget.status] : undefined;
+  const professionalName = budget
+    ? professionals.find((professional) => professional.id === budget.responsibleProfessionalId)
+        ?.name
+    : undefined;
 
   async function handleShare() {
     if (!budget) return;
@@ -77,7 +86,7 @@ export function BudgetDetailSheet({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span className="text-muted-foreground">Profissional responsável</span>
-              <p>{(budget && responsibleProfessionalName(budget)) ?? "—"}</p>
+              <p>{professionalName ?? "—"}</p>
             </div>
             <div>
               <span className="text-muted-foreground">Validade</span>
@@ -124,13 +133,13 @@ export function BudgetDetailSheet({
             {copied ? "Link copiado!" : "Copiar link de compartilhamento"}
           </Button>
 
-          {budget?.status === "rascunho" && (
+          {canManage && budget?.status === "rascunho" && (
             <Button size="sm" onClick={() => onStatusChange(budget.id, "enviado")}>
               <Send />
               Marcar como enviado
             </Button>
           )}
-          {budget?.status === "enviado" && (
+          {canManage && budget?.status === "enviado" && (
             <div className="flex gap-2">
               <Button size="sm" onClick={() => onStatusChange(budget.id, "aprovado")}>
                 <Check />
@@ -148,21 +157,23 @@ export function BudgetDetailSheet({
           )}
         </div>
 
-        <SheetFooter className="flex-row justify-between border-t">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => budget && onDelete(budget)}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 />
-            Excluir
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => budget && onEdit(budget)}>
-            <Pencil />
-            Editar
-          </Button>
-        </SheetFooter>
+        {canManage && (
+          <SheetFooter className="flex-row justify-between border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => budget && onDelete(budget)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 />
+              Excluir
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => budget && onEdit(budget)}>
+              <Pencil />
+              Editar
+            </Button>
+          </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );

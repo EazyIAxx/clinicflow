@@ -20,7 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { procedureCategories, type Procedure } from "@/lib/mock-procedimentos";
+import { createProcedure, updateProcedure } from "@/lib/actions/orcamentos";
+import { procedureCategories } from "@/lib/mock-procedimentos";
+import type { Procedure } from "@/lib/orcamentos-types";
 
 export function ProcedureFormDialog({
   open,
@@ -40,18 +42,26 @@ export function ProcedureFormDialog({
   const [price, setPrice] = useState(procedure?.price ?? 0);
   const [durationMinutes, setDurationMinutes] = useState(procedure?.durationMinutes ?? 30);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: procedure?.id ?? crypto.randomUUID(),
-      name,
-      category,
-      price,
-      durationMinutes,
-    });
+    const input = { name, category, price, durationMinutes };
+    const result = procedure
+      ? await updateProcedure(procedure.id, input)
+      : await createProcedure(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -122,9 +132,15 @@ export function ProcedureFormDialog({
             </div>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Cadastrar procedimento"}
+              {isSubmitting
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Cadastrar procedimento"}
             </Button>
           </DialogFooter>
         </form>

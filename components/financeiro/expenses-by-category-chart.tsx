@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import type { ExpenseCategory, getExpensesByCategory } from "@/lib/mock-financeiro";
+import type { ExpenseCategory, getExpensesByCategory } from "@/lib/financeiro-types";
 import { formatCurrency } from "@/lib/utils";
 
 const categoryColors: Record<ExpenseCategory, { light: string; dark: string }> = {

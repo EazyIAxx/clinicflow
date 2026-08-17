@@ -1,7 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import { CashflowChart } from "@/components/financeiro/cashflow-chart";
 import { ChargeFormDialog } from "@/components/financeiro/charge-form-dialog";
@@ -40,6 +40,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  cancelCharge,
+  deleteCharge,
+  deleteExpense,
+  markExpensePaid,
+} from "@/lib/actions/financeiro";
 import type { ChargeDisplayStatus, ExpenseDisplayStatus } from "@/lib/finance-status";
 import {
   getCashflowTrend,
@@ -51,21 +57,27 @@ import {
   getPatientPaymentsTrend,
   type Charge,
   type Expense,
-} from "@/lib/mock-financeiro";
-import type { Patient } from "@/lib/mock-pacientes";
+} from "@/lib/financeiro-types";
+import type { Budget } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
 export function FinanceiroView({
   initialCharges,
   initialExpenses,
   patients,
+  approvedBudgets,
   referenceDate,
 }: {
   initialCharges: Charge[];
   initialExpenses: Expense[];
   patients: Patient[];
+  approvedBudgets: Budget[];
   referenceDate: Date;
 }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
   const [charges, setCharges] = useState<Charge[]>(initialCharges);
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
 
@@ -141,6 +153,7 @@ export function FinanceiroView({
         ? prev.map((existing) => (existing.id === charge.id ? charge : existing))
         : [...prev, charge];
     });
+    router.refresh();
   }
 
   function openPaymentDialog(charge: Charge) {
@@ -155,11 +168,20 @@ export function FinanceiroView({
         existing.id === charge.id ? { ...existing, status: "cancelado" } : existing,
       ),
     );
+    startTransition(async () => {
+      await cancelCharge(charge.id);
+      router.refresh();
+    });
   }
 
   function handleConfirmDeleteCharge() {
     if (!chargeToDelete) return;
-    setCharges((prev) => prev.filter((existing) => existing.id !== chargeToDelete.id));
+    const id = chargeToDelete.id;
+    startTransition(async () => {
+      await deleteCharge(id);
+      setCharges((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setChargeToDelete(null);
   }
 
@@ -182,21 +204,30 @@ export function FinanceiroView({
         ? prev.map((existing) => (existing.id === expense.id ? expense : existing))
         : [...prev, expense];
     });
+    router.refresh();
   }
 
   function handleMarkExpenseAsPaid(expense: Expense) {
+    const paidAt = new Date().toISOString().slice(0, 10);
     setExpenses((prev) =>
       prev.map((existing) =>
-        existing.id === expense.id
-          ? { ...existing, status: "pago", paidAt: format(new Date(), "yyyy-MM-dd") }
-          : existing,
+        existing.id === expense.id ? { ...existing, status: "pago", paidAt } : existing,
       ),
     );
+    startTransition(async () => {
+      await markExpensePaid(expense.id, paidAt);
+      router.refresh();
+    });
   }
 
   function handleConfirmDeleteExpense() {
     if (!expenseToDelete) return;
-    setExpenses((prev) => prev.filter((existing) => existing.id !== expenseToDelete.id));
+    const id = expenseToDelete.id;
+    startTransition(async () => {
+      await deleteExpense(id);
+      setExpenses((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setExpenseToDelete(null);
   }
 
@@ -377,6 +408,7 @@ export function FinanceiroView({
         onOpenChange={setIsChargeFormOpen}
         charge={editingCharge}
         patients={patients}
+        approvedBudgets={approvedBudgets}
         onSubmit={handleChargeSubmit}
       />
 
