@@ -24,27 +24,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { professionals } from "@/lib/mock-agenda";
-import { computeBudgetTotals, type Budget, type BudgetItem } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
-import { getMockProcedures } from "@/lib/mock-procedimentos";
+import { createBudget, updateBudget } from "@/lib/actions/orcamentos";
+import type { Professional } from "@/lib/agenda-types";
 import { budgetStatusMeta, budgetStatusOrder, type BudgetStatus } from "@/lib/orcamento-status";
+import {
+  computeBudgetTotals,
+  type Budget,
+  type BudgetItem,
+  type Procedure,
+} from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
 const NONE_PROFESSIONAL = "nenhum";
-const procedures = getMockProcedures();
 
 export function BudgetFormDialog({
   open,
   onOpenChange,
   budget,
   patients,
+  professionals,
+  procedures,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budget?: Budget;
   patients: Patient[];
+  professionals: Professional[];
+  procedures: Procedure[];
   onSubmit: (budget: Budget) => void;
 }) {
   const isEditing = Boolean(budget);
@@ -57,8 +65,8 @@ export function BudgetFormDialog({
     budget?.items ?? [
       {
         id: crypto.randomUUID(),
-        procedureId: procedures[0].id,
-        amount: procedures[0].price,
+        procedureId: procedures[0]?.id ?? "",
+        amount: procedures[0]?.price ?? 0,
       },
     ],
   );
@@ -69,6 +77,7 @@ export function BudgetFormDialog({
   const [status, setStatus] = useState<BudgetStatus>(budget?.status ?? "rascunho");
   const [notes, setNotes] = useState(budget?.notes ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
   const { subtotal, discountAmount, total } = computeBudgetTotals({ items, discountPercent });
 
@@ -77,8 +86,8 @@ export function BudgetFormDialog({
       ...prev,
       {
         id: crypto.randomUUID(),
-        procedureId: procedures[0].id,
-        amount: procedures[0].price,
+        procedureId: procedures[0]?.id ?? "",
+        amount: procedures[0]?.price ?? 0,
       },
     ]);
   }
@@ -96,22 +105,32 @@ export function BudgetFormDialog({
     updateItem(itemId, { procedureId, amount: procedure?.price ?? 0 });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: budget?.id ?? crypto.randomUUID(),
+    const input = {
       patientId,
       responsibleProfessionalId:
         responsibleProfessionalId === NONE_PROFESSIONAL ? undefined : responsibleProfessionalId,
-      items,
+      items: items.map((item) => ({ procedureId: item.procedureId, amount: item.amount })),
       discountPercent,
       validUntil: validUntil ? format(validUntil, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       status,
       notes: notes || undefined,
-      createdAt: budget?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
-    });
+    };
+
+    const result = budget ? await updateBudget(budget.id, input) : await createBudget(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -302,9 +321,11 @@ export function BudgetFormDialog({
             </div>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting || !patientId}>
-              {isEditing ? "Salvar alterações" : "Criar orçamento"}
+              {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Criar orçamento"}
             </Button>
           </DialogFooter>
         </form>

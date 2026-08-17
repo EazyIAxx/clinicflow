@@ -9,7 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { chargeStatusMeta, type ChargeDisplayStatus } from "@/lib/finance-status";
-import type { getChargesStatusBreakdown } from "@/lib/mock-financeiro";
+import type { getChargesStatusBreakdown } from "@/lib/financeiro-types";
 
 const statusColors: Record<ChargeDisplayStatus, { light: string; dark: string }> = {
   pendente: { light: "#f59e0b", dark: "#fbbf24" },

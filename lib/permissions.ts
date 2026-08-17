@@ -3,7 +3,14 @@ import { Check, Eye, Minus, type LucideIcon } from "lucide-react";
 import type { UserRole } from "@/lib/mock-usuarios";
 
 export type PermissionModule =
-  "agenda" | "estoque" | "pacientes" | "crm" | "relatorios" | "configuracoes";
+  | "agenda"
+  | "estoque"
+  | "pacientes"
+  | "crm"
+  | "orcamentos"
+  | "financeiro"
+  | "relatorios"
+  | "configuracoes";
 
 export type AccessLevel = "nenhum" | "visualizar" | "gerenciar";
 
@@ -12,6 +19,8 @@ export const permissionModuleLabels: Record<PermissionModule, string> = {
   estoque: "Estoque",
   pacientes: "Pacientes / Prontuário",
   crm: "CRM",
+  orcamentos: "Orçamentos",
+  financeiro: "Financeiro",
   relatorios: "Relatórios",
   configuracoes: "Configurações",
 };
@@ -55,6 +64,8 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     estoque: "visualizar",
     pacientes: "gerenciar",
     crm: "gerenciar",
+    orcamentos: "gerenciar",
+    financeiro: "nenhum",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -63,6 +74,8 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     estoque: "nenhum",
     pacientes: "gerenciar",
     crm: "gerenciar",
+    orcamentos: "visualizar",
+    financeiro: "nenhum",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -71,6 +84,8 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     estoque: "gerenciar",
     pacientes: "gerenciar",
     crm: "gerenciar",
+    orcamentos: "gerenciar",
+    financeiro: "gerenciar",
     relatorios: "gerenciar",
     configuracoes: "gerenciar",
   },

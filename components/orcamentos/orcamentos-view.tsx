@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import { BudgetDetailSheet } from "@/components/orcamentos/budget-detail-sheet";
 import { BudgetFormDialog } from "@/components/orcamentos/budget-form-dialog";
@@ -21,21 +22,29 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { computeBudgetTotals, type Budget } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
-import type { Procedure } from "@/lib/mock-procedimentos";
-import { formatCurrency } from "@/lib/utils";
+import { deleteBudget, deleteProcedure, updateBudgetStatus } from "@/lib/actions/orcamentos";
+import type { Professional } from "@/lib/agenda-types";
 import type { BudgetStatus } from "@/lib/orcamento-status";
+import { computeBudgetTotals, type Budget, type Procedure } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
+import { formatCurrency } from "@/lib/utils";
 
 export function OrcamentosView({
   initialBudgets,
   initialProcedures,
   patients,
+  professionals,
+  canManage,
 }: {
   initialBudgets: Budget[];
   initialProcedures: Procedure[];
   patients: Patient[];
+  professionals: Professional[];
+  canManage: boolean;
 }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
   const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   const [procedures, setProcedures] = useState<Procedure[]>(initialProcedures);
 
@@ -106,12 +115,17 @@ export function OrcamentosView({
         ? prev.map((existing) => (existing.id === budget.id ? budget : existing))
         : [...prev, budget];
     });
+    router.refresh();
   }
 
   function handleStatusChange(budgetId: string, status: BudgetStatus) {
-    setBudgets((prev) =>
-      prev.map((budget) => (budget.id === budgetId ? { ...budget, status } : budget)),
-    );
+    startTransition(async () => {
+      const result = await updateBudgetStatus(budgetId, status);
+      if (result.data) {
+        setBudgets((prev) => prev.map((budget) => (budget.id === budgetId ? result.data! : budget)));
+        router.refresh();
+      }
+    });
   }
 
   function openBudgetDetail(budget: Budget) {
@@ -126,7 +140,12 @@ export function OrcamentosView({
 
   function handleConfirmDeleteBudget() {
     if (!budgetToDelete) return;
-    setBudgets((prev) => prev.filter((existing) => existing.id !== budgetToDelete.id));
+    const id = budgetToDelete.id;
+    startTransition(async () => {
+      await deleteBudget(id);
+      setBudgets((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setBudgetToDelete(null);
   }
 
@@ -149,11 +168,17 @@ export function OrcamentosView({
         ? prev.map((existing) => (existing.id === procedure.id ? procedure : existing))
         : [...prev, procedure];
     });
+    router.refresh();
   }
 
   function handleConfirmDeleteProcedure() {
     if (!procedureToDelete) return;
-    setProcedures((prev) => prev.filter((existing) => existing.id !== procedureToDelete.id));
+    const id = procedureToDelete.id;
+    startTransition(async () => {
+      await deleteProcedure(id);
+      setProcedures((prev) => prev.filter((existing) => existing.id !== id));
+      router.refresh();
+    });
     setProcedureToDelete(null);
   }
 
@@ -202,6 +227,7 @@ export function OrcamentosView({
             onPatientFilterChange={setPatientFilter}
             patients={patients}
             onNewBudget={openNewBudgetDialog}
+            canManage={canManage}
           />
           <OrcamentosTable
             budgets={filteredBudgets}
@@ -209,6 +235,7 @@ export function OrcamentosView({
             onView={openBudgetDetail}
             onEdit={openEditBudgetDialog}
             onDelete={setBudgetToDelete}
+            canManage={canManage}
           />
         </TabsContent>
 
@@ -217,11 +244,13 @@ export function OrcamentosView({
             search={procedureSearch}
             onSearchChange={setProcedureSearch}
             onNewProcedure={openNewProcedureDialog}
+            canManage={canManage}
           />
           <ProceduresTable
             procedures={filteredProcedures}
             onEdit={openEditProcedureDialog}
             onDelete={setProcedureToDelete}
+            canManage={canManage}
           />
         </TabsContent>
       </Tabs>
@@ -232,17 +261,22 @@ export function OrcamentosView({
         onOpenChange={setIsBudgetFormOpen}
         budget={editingBudget}
         patients={patients}
+        professionals={professionals}
+        procedures={procedures}
         onSubmit={handleBudgetSubmit}
       />
 
       <BudgetDetailSheet
         budget={selectedBudget}
         patient={selectedBudget ? patientsById[selectedBudget.patientId] : undefined}
+        professionals={professionals}
+        procedures={procedures}
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
         onStatusChange={handleStatusChange}
         onEdit={openEditBudgetDialog}
         onDelete={handleDeleteBudgetRequest}
+        canManage={canManage}
       />
 
       <ProcedureFormDialog

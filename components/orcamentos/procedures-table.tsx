@@ -16,17 +16,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Procedure } from "@/lib/mock-procedimentos";
+import type { Procedure } from "@/lib/orcamentos-types";
 import { formatCurrency } from "@/lib/utils";
 
 export function ProceduresTable({
   procedures,
   onEdit,
   onDelete,
+  canManage,
 }: {
   procedures: Procedure[];
   onEdit: (procedure: Procedure) => void;
   onDelete: (procedure: Procedure) => void;
+  canManage: boolean;
 }) {
   return (
     <div className="rounded-lg border">
@@ -37,7 +39,7 @@ export function ProceduresTable({
             <TableHead>Categoria</TableHead>
             <TableHead className="text-right">Duração</TableHead>
             <TableHead className="text-right">Valor</TableHead>
-            <TableHead className="w-10" />
+            {canManage && <TableHead className="w-10" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,25 +58,27 @@ export function ProceduresTable({
                 {procedure.durationMinutes} min
               </TableCell>
               <TableCell className="text-right">{formatCurrency(procedure.price)}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                    <MoreHorizontal />
-                    <span className="sr-only">Ações</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit(procedure)}>
-                      <Pencil />
-                      Editar procedimento
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive" onClick={() => onDelete(procedure)}>
-                      <Trash2 />
-                      Remover procedimento
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+              {canManage && (
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+                      <MoreHorizontal />
+                      <span className="sr-only">Ações</span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEdit(procedure)}>
+                        <Pencil />
+                        Editar procedimento
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem variant="destructive" onClick={() => onDelete(procedure)}>
+                        <Trash2 />
+                        Remover procedimento
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

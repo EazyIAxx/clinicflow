@@ -22,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createExpense, updateExpense } from "@/lib/actions/financeiro";
 import { expenseStatusMeta, expenseStatusOrder, type ExpenseStatus } from "@/lib/finance-status";
-import { expenseCategories, type Expense, type ExpenseRecurrence } from "@/lib/mock-financeiro";
+import { expenseCategories, type Expense, type ExpenseRecurrence } from "@/lib/financeiro-types";
 
 const NOT_RECURRING = "nao_recorrente";
 
@@ -51,23 +52,33 @@ export function ExpenseFormDialog({
     expense?.recurrence ?? NOT_RECURRING,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: expense?.id ?? crypto.randomUUID(),
+    const input = {
       description,
       category,
       amount,
       dueDate: dueDate ? format(dueDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       status,
-      paidAt: expense?.paidAt,
       isRecurring: recurrence !== NOT_RECURRING,
       recurrence: recurrence === NOT_RECURRING ? undefined : recurrence,
-      createdAt: expense?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
-    });
+    };
+
+    const result = expense ? await updateExpense(expense.id, input) : await createExpense(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -177,9 +188,11 @@ export function ExpenseFormDialog({
             </div>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Cadastrar despesa"}
+              {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar despesa"}
             </Button>
           </DialogFooter>
         </form>

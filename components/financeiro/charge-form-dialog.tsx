@@ -22,10 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createCharge, updateCharge } from "@/lib/actions/financeiro";
 import { chargeStatusMeta, chargeStatusOrder, type ChargeStatus } from "@/lib/finance-status";
-import type { Charge, ChargeSourceType } from "@/lib/mock-financeiro";
-import { computeBudgetTotals, getMockBudgets } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Charge, ChargeSourceType } from "@/lib/financeiro-types";
+import { computeBudgetTotals, type Budget } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { formatCurrency } from "@/lib/utils";
 
 const sourceTypeLabels: Record<ChargeSourceType, string> = {
@@ -33,19 +34,19 @@ const sourceTypeLabels: Record<ChargeSourceType, string> = {
   consulta: "Consulta avulsa",
 };
 
-const approvedBudgets = getMockBudgets(new Date()).filter((budget) => budget.status === "aprovado");
-
 export function ChargeFormDialog({
   open,
   onOpenChange,
   charge,
   patients,
+  approvedBudgets,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   charge?: Charge;
   patients: Patient[];
+  approvedBudgets: Budget[];
   onSubmit: (charge: Charge) => void;
 }) {
   const isEditing = Boolean(charge);
@@ -60,6 +61,7 @@ export function ChargeFormDialog({
   );
   const [status, setStatus] = useState<ChargeStatus>(charge?.status ?? "pendente");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
   function handleBudgetChange(id: string) {
     setBudgetId(id);
@@ -78,12 +80,12 @@ export function ChargeFormDialog({
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
+    setError(undefined);
 
-    onSubmit({
-      id: charge?.id ?? crypto.randomUUID(),
+    const input = {
       patientId,
       sourceType,
       budgetId: sourceType === "orcamento" ? budgetId : undefined,
@@ -91,10 +93,18 @@ export function ChargeFormDialog({
       amount,
       dueDate: dueDate ? format(dueDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       status,
-      paymentMethod: charge?.paymentMethod,
-      paidAt: charge?.paidAt,
-      createdAt: charge?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
-    });
+    };
+
+    const result = charge ? await updateCharge(charge.id, input) : await createCharge(input);
+
+    setIsSubmitting(false);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return;
+    }
+
+    onSubmit(result.data);
     onOpenChange(false);
   }
 
@@ -235,9 +245,11 @@ export function ChargeFormDialog({
             </Select>
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Salvar alterações" : "Criar cobrança"}
+              {isSubmitting ? "Salvando..." : isEditing ? "Salvar alterações" : "Criar cobrança"}
             </Button>
           </DialogFooter>
         </form>

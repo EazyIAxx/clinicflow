@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Patient } from "@/lib/mock-pacientes";
 import { budgetStatusMeta, budgetStatusOrder, type BudgetStatus } from "@/lib/orcamento-status";
+import type { Patient } from "@/lib/patient-types";
 
 export function OrcamentosToolbar({
   search,
@@ -21,6 +21,7 @@ export function OrcamentosToolbar({
   onPatientFilterChange,
   patients,
   onNewBudget,
+  canManage,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
@@ -30,6 +31,7 @@ export function OrcamentosToolbar({
   onPatientFilterChange: (value: string) => void;
   patients: Patient[];
   onNewBudget: () => void;
+  canManage: boolean;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -88,10 +90,12 @@ export function OrcamentosToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onNewBudget}>
-        <Plus />
-        Novo orçamento
-      </Button>
+      {canManage && (
+        <Button onClick={onNewBudget}>
+          <Plus />
+          Novo orçamento
+        </Button>
+      )}
     </div>
   );
 }

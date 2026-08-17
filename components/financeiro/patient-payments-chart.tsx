@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import type { getPatientPaymentsTrend } from "@/lib/mock-financeiro";
+import type { getPatientPaymentsTrend } from "@/lib/financeiro-types";
 import { formatCurrency } from "@/lib/utils";
 
 const chartConfig = {
