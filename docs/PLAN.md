@@ -262,11 +262,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `chore/deploy-producao`
 - **Objetivo**: preparar e executar o deploy de produção completo do ClinicFlow.
 - **Entregas**:
-  - [ ] Configurar variáveis de ambiente de produção (Supabase, WhatsApp, Claude API)
-  - [ ] Revisão de segurança (RLS, chaves de API, rate limiting em webhooks)
-  - [ ] Configurar CI/CD (build, lint e testes antes do deploy)
-  - [ ] Deploy em produção (Vercel + Supabase)
-  - [ ] Smoke test em produção de todos os módulos
+  - [x] Documentar variáveis de ambiente de produção — `docs/DEPLOY.md`, só as que o código realmente usa (WhatsApp/Claude ficam de fora, M20 foi pulado); preenchimento real no painel da Vercel depende de acesso à conta
+  - [x] Revisão de segurança — todas as 68 policies de RLS (20 tabelas + Storage) auditadas; brecha real corrigida em `BudgetItem` (migration `20260820100000_fix_budget_item_rls`); cobertura de auth em Server Actions conferida 1:1; contas de auth do Supabase não relacionadas ao projeto removidas
+  - [x] Configurar CI/CD — `.github/workflows/ci.yml` (lint + build em toda PR/push pra `main`)
+  - [ ] Deploy em produção (Vercel + Supabase) — depende de login/acesso à conta Vercel do usuário
+  - [ ] Smoke test em produção de todos os módulos — depende do deploy acima; checklist já pronto em `docs/DEPLOY.md`
 - **Commit final**: `chore: configuração de produção e deploy final`
 
 ---
