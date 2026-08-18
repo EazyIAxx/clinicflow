@@ -47,6 +47,8 @@ model Clinic {
   expenses         Expense[]
   automationRules  AutomationRule[]
   automationLogs   AutomationLog[]
+  notifications    Notification[]
+  conversations    Conversation[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -69,6 +71,11 @@ model User {
   verificationCodeHash      String?
   verificationCodeExpiresAt DateTime?
   verificationAttempts      Int       @default(0)
+
+  notifications        Notification[]
+  conversationsAsUserA Conversation[] @relation("ConversationsAsUserA")
+  conversationsAsUserB Conversation[] @relation("ConversationsAsUserB")
+  messagesSent         Message[]
 }
 
 enum AppointmentStatus {
@@ -503,4 +510,58 @@ model AutomationLog {
 
   @@index([clinicId, ruleId])
   @@index([patientId])
+}
+
+enum NotificationType {
+  lembrete_consulta
+  estoque_baixo
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  clinicId  String           @db.Uuid
+  clinic    Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  userId    String           @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  /// Caminho pra navegar ao clicar (ex.: "/agenda"), opcional.
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([clinicId, userId, read])
+}
+
+/// Conversa 1-para-1 entre dois membros da equipe — sem canais nem grupo.
+/// `userAId` é sempre o menor UUID dos dois participantes (normalizado na
+/// Server Action), pra `@@unique` impedir duas conversas pro mesmo par.
+model Conversation {
+  id        String    @id @default(uuid()) @db.Uuid
+  clinicId  String    @db.Uuid
+  clinic    Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  userAId   String    @db.Uuid
+  userA     User      @relation("ConversationsAsUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId   String    @db.Uuid
+  userB     User      @relation("ConversationsAsUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  messages  Message[]
+
+  @@unique([userAId, userBId])
+  @@index([clinicId])
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String       @db.Uuid
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  /// Preenchido quando o outro participante (não o remetente) visualiza a conversa.
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
 }

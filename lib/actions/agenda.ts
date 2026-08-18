@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { getCurrentUser } from "@/lib/auth";
 import { mapAppointment, type Appointment } from "@/lib/agenda-types";
+import { sendAppointmentEmail } from "@/lib/notification-service";
 import { prisma } from "@/lib/prisma";
 
 export type AgendaActionState<T> = {
@@ -95,6 +96,10 @@ export async function createAppointment(input: {
     },
   });
 
+  if (row.status === "confirmada" && row.kind === "consulta") {
+    await sendAppointmentEmail(currentUser.clinicId, row, "confirmacao");
+  }
+
   revalidatePath("/agenda");
   return { data: mapAppointment(row) };
 }
@@ -109,6 +114,8 @@ export async function confirmAppointment(id: string): Promise<AgendaActionState<
     where: { id, clinicId: currentUser.clinicId },
     data: { status: "confirmada" },
   });
+
+  await sendAppointmentEmail(currentUser.clinicId, row, "confirmacao");
 
   revalidatePath("/agenda");
   return { data: mapAppointment(row) };

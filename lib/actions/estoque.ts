@@ -10,6 +10,7 @@ import {
   type StockItem,
   type StockItemMovementResult,
 } from "@/lib/estoque-types";
+import { getStaffUserIds, notifyUsers } from "@/lib/notification-service";
 import { prisma } from "@/lib/prisma";
 
 export type EstoqueActionState<T = undefined> = {
@@ -166,6 +167,19 @@ export async function registerMovement(input: {
   });
 
   if ("error" in result) return { error: result.error };
+
+  const { updatedItem } = result;
+  if (updatedItem.quantity <= updatedItem.minQuantity) {
+    const staffUserIds = await getStaffUserIds(currentUser.clinicId, ["recepcionista", "gestor"]);
+    await notifyUsers({
+      clinicId: currentUser.clinicId,
+      userIds: staffUserIds,
+      type: "estoque_baixo",
+      title: "Estoque abaixo do mínimo",
+      message: `${updatedItem.name} está com ${updatedItem.quantity} ${updatedItem.unit} (mínimo: ${updatedItem.minQuantity}).`,
+      link: "/estoque",
+    });
+  }
 
   revalidatePath("/estoque");
   return {

@@ -4,6 +4,7 @@ import {
   Handshake,
   LayoutDashboard,
   LineChart,
+  MessageSquare,
   Package,
   Receipt,
   Settings,
@@ -34,6 +35,7 @@ export const navGroups: NavGroup[] = [
       { title: "CRM", href: "/crm", icon: Handshake, milestone: "M6" },
       { title: "Pacientes", href: "/pacientes", icon: Users, milestone: "M4" },
       { title: "Prontuários", href: "/prontuarios", icon: ClipboardList, milestone: "M4" },
+      { title: "Mensagens", href: "/mensagens", icon: MessageSquare, milestone: "M19" },
     ],
   },
   {
