@@ -21,9 +21,10 @@ Variáveis do `.env.example` que **não têm código nenhum usando ainda** (M20 
 ## 2. Conectar a Vercel
 
 1. Vercel → New Project → importar o repositório `EazyIAxx/clinicflow` do GitHub.
-2. Framework detectado automaticamente como Next.js — não precisa de `vercel.json` (o `postinstall: prisma generate` no `package.json` já garante o client gerado antes do build).
-3. Preencher as variáveis da seção 1 em Production (e Preview, se quiser preview deployments funcionais).
-4. Deploy.
+2. `vercel.json` declara `"framework": "nextjs"` explicitamente — necessário porque o repo tem alguns scripts `.py` vendorizados junto com skills do Claude Code (`.claude/skills/**/scripts/*.py`), e a detecção automática da Vercel os interpretou como sinal de projeto Python, tentando (e falhando) buildar como Python em vez de Next.js. Sem essa declaração explícita, o build falha com `Error: No python entrypoint found`.
+3. `postinstall: prisma generate` no `package.json` garante o client gerado antes do build.
+4. Preencher as variáveis da seção 1 em Production (e Preview, se quiser preview deployments funcionais).
+5. Deploy.
 
 ## 3. CI (GitHub Actions)
 
@@ -47,9 +48,11 @@ Depois do primeiro deploy, testar manualmente na URL de produção:
 
 Ainda não tem Vercel Cron configurado (decisão consciente do M19 — fica pra quando o app for pro ar de verdade). Pra ativar depois do deploy:
 
-1. Adicionar um `vercel.json` com:
+1. Adicionar a chave `crons` ao `vercel.json` que já existe na raiz do repo:
    ```json
    {
+     "$schema": "https://openapi.vercel.sh/vercel.json",
+     "framework": "nextjs",
      "crons": [{ "path": "/api/lembretes", "schedule": "0 9 * * *" }]
    }
    ```
