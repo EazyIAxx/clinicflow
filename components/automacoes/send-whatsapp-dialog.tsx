@@ -20,8 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { resolveMessageTemplate, type AutomationRule } from "@/lib/mock-automacoes";
-import type { Patient } from "@/lib/mock-pacientes";
+import { logWhatsAppDispatch } from "@/lib/actions/automacoes";
+import {
+  computeEligiblePatients,
+  resolveMessageTemplate,
+  type AutomationEngineAppointment,
+  type AutomationEngineBudget,
+  type AutomationRule,
+} from "@/lib/automacao-types";
+import type { Patient } from "@/lib/patient-types";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export function SendWhatsAppDialog({
@@ -29,16 +36,26 @@ export function SendWhatsAppDialog({
   onOpenChange,
   rule,
   patients,
+  engineContext,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rule: AutomationRule | null;
   patients: Patient[];
+  engineContext: {
+    patients: Patient[];
+    appointments: AutomationEngineAppointment[];
+    budgets: AutomationEngineBudget[];
+    today: Date;
+  };
 }) {
-  const [patientId, setPatientId] = useState(patients[0]?.id ?? "");
+  const eligiblePatients = rule ? computeEligiblePatients(rule, engineContext) : [];
+  const defaultPatient = eligiblePatients[0] ?? patients[0];
+
+  const [patientId, setPatientId] = useState(defaultPatient?.id ?? "");
   const [message, setMessage] = useState(() =>
-    rule && patients[0]
-      ? resolveMessageTemplate(rule.action.message, patients[0], new Date())
+    rule && defaultPatient
+      ? resolveMessageTemplate(rule.action.message, defaultPatient, new Date())
       : (rule?.action.message ?? ""),
   );
 
@@ -53,6 +70,11 @@ export function SendWhatsAppDialog({
     }
   }
 
+  function handleOpenWhatsApp() {
+    if (!rule || !patient) return;
+    logWhatsAppDispatch(rule.id, patient.id, message);
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -65,6 +87,12 @@ export function SendWhatsAppDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
+          {eligiblePatients.length > 0 && (
+            <p className="text-muted-foreground text-xs">
+              {eligiblePatients.length} paciente(s) elegível(is) agora pra esta regra — já
+              selecionado por padrão.
+            </p>
+          )}
           <div className="flex flex-col gap-1.5">
             <Label>Paciente</Label>
             <Select
@@ -106,6 +134,7 @@ export function SendWhatsAppDialog({
           <Button
             nativeButton={false}
             render={<a href={waLink} target="_blank" rel="noopener noreferrer" />}
+            onClick={handleOpenWhatsApp}
           >
             Abrir WhatsApp Web
           </Button>

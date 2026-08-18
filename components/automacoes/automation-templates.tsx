@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { automationTemplates, type AutomationTemplate } from "@/lib/mock-automacoes";
+import { automationTemplates, type AutomationTemplate } from "@/lib/automacao-types";
 
 export function AutomationTemplates({
   onUseTemplate,

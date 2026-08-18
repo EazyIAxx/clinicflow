@@ -21,12 +21,14 @@ export function AutomationsToolbar({
   statusFilter,
   onStatusFilterChange,
   onNewRule,
+  canManage,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
   statusFilter: AutomationStatus | "todos";
   onStatusFilterChange: (value: AutomationStatus | "todos") => void;
   onNewRule: () => void;
+  canManage: boolean;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -63,10 +65,12 @@ export function AutomationsToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onNewRule}>
-        <Plus />
-        Nova regra
-      </Button>
+      {canManage && (
+        <Button onClick={onNewRule}>
+          <Plus />
+          Nova regra
+        </Button>
+      )}
     </div>
   );
 }

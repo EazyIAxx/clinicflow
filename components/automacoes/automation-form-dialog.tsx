@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createAutomationRule, updateAutomationRule } from "@/lib/actions/automacoes";
+import type { Professional } from "@/lib/agenda-types";
 import {
   automationActionChannelMeta,
   automationConditionFieldLabels,
@@ -39,8 +41,9 @@ import {
   type AutomationRule,
   type AutomationTrigger,
   type AutomationTriggerType,
-} from "@/lib/mock-automacoes";
-import type { Patient } from "@/lib/mock-pacientes";
+} from "@/lib/automacao-types";
+import { categories as stockCategories } from "@/lib/estoque-types";
+import type { Patient } from "@/lib/patient-types";
 import { cn } from "@/lib/utils";
 
 const triggerTypeOrder: AutomationTriggerType[] = [
@@ -84,6 +87,7 @@ export function AutomationFormDialog({
   rule,
   prefill,
   patients,
+  professionals,
   onSubmit,
   onSubmitAndSend,
 }: {
@@ -92,6 +96,7 @@ export function AutomationFormDialog({
   rule?: AutomationRule;
   prefill?: Pick<AutomationRule, "name" | "description" | "trigger" | "condition" | "action">;
   patients: Patient[];
+  professionals: Professional[];
   onSubmit: (rule: AutomationRule) => void;
   onSubmitAndSend: (rule: AutomationRule) => void;
 }) {
@@ -132,6 +137,7 @@ export function AutomationFormDialog({
   const [targetPatientIds, setTargetPatientIds] = useState<string[]>(rule?.targetPatientIds ?? []);
   const [patientSearch, setPatientSearch] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string>();
 
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(patientSearch.toLowerCase()),
@@ -143,7 +149,7 @@ export function AutomationFormDialog({
     );
   }
 
-  function buildRule(): AutomationRule {
+  function buildInput() {
     const condition: AutomationCondition | null =
       conditionField === NO_CONDITION
         ? null
@@ -160,29 +166,46 @@ export function AutomationFormDialog({
     };
 
     return {
-      id: rule?.id ?? crypto.randomUUID(),
       name,
       description: description || undefined,
       trigger: buildTrigger(triggerType, triggerDays, triggerHours, triggerDate),
       condition,
       action,
-      status: rule?.status ?? "ativa",
-      createdAt: rule?.createdAt ?? format(new Date(), "yyyy-MM-dd"),
-      lastTriggeredAt: rule?.lastTriggeredAt,
+      status: rule?.status ?? ("ativa" as const),
       targetPatientIds: targetPatientIds.length > 0 ? targetPatientIds : undefined,
     };
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function submitRule() {
+    setError(undefined);
+    const input = buildInput();
+    const result = rule
+      ? await updateAutomationRule(rule.id, input)
+      : await createAutomationRule(input);
+
+    if (result.error || !result.data) {
+      setError(result.error ?? "Não foi possível salvar. Tente novamente.");
+      return null;
+    }
+    return result.data;
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    onSubmit(buildRule());
+    const savedRule = await submitRule();
+    setIsSubmitting(false);
+    if (!savedRule) return;
+    onSubmit(savedRule);
     onOpenChange(false);
   }
 
-  function handleSubmitAndSend() {
+  async function handleSubmitAndSend() {
     setIsSubmitting(true);
-    onSubmitAndSend(buildRule());
+    const savedRule = await submitRule();
+    setIsSubmitting(false);
+    if (!savedRule) return;
+    onSubmitAndSend(savedRule);
     onOpenChange(false);
   }
 
@@ -286,9 +309,10 @@ export function AutomationFormDialog({
             <Label>Condição (opcional)</Label>
             <Select
               value={conditionField}
-              onValueChange={(value) =>
-                setConditionField(value as AutomationConditionField | typeof NO_CONDITION)
-              }
+              onValueChange={(value) => {
+                setConditionField(value as AutomationConditionField | typeof NO_CONDITION);
+                setConditionValue("");
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue>
@@ -331,12 +355,55 @@ export function AutomationFormDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <Input
-                  value={conditionValue}
-                  onChange={(event) => setConditionValue(event.target.value)}
-                  placeholder="Valor"
-                  required
-                />
+                {conditionField === "categoria_estoque" && (
+                  <Select value={conditionValue} onValueChange={(value) => setConditionValue(value ?? "")}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {(value: string) =>
+                          stockCategories.find((category) => category.value === value)?.label ??
+                          "Selecionar"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stockCategories.map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {conditionField === "profissional" && (
+                  <Select value={conditionValue} onValueChange={(value) => setConditionValue(value ?? "")}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {(value: string) =>
+                          professionals.find((professional) => professional.id === value)?.name ??
+                          "Selecionar"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {professionals.map((professional) => (
+                        <SelectItem key={professional.id} value={professional.id}>
+                          {professional.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {conditionField === "valor_minimo_orcamento" && (
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={conditionValue}
+                    onChange={(event) => setConditionValue(event.target.value)}
+                    placeholder="Valor"
+                    required
+                  />
+                )}
               </div>
             )}
           </div>
@@ -394,10 +461,10 @@ export function AutomationFormDialog({
             </p>
           </div>
 
-          {actionChannel === "whatsapp" && (
+          {triggerType === "promocao" && (
             <div className="flex flex-col gap-2 rounded-md border p-3">
               <div className="flex items-center justify-between gap-2">
-                <Label>Pacientes para disparo (opcional)</Label>
+                <Label>Pacientes para disparo</Label>
                 <button
                   type="button"
                   onClick={() =>
@@ -417,7 +484,7 @@ export function AutomationFormDialog({
               <p className="text-muted-foreground text-xs">
                 Quem recebe a mensagem ao usar &quot;
                 {isEditing ? "Salvar e enviar via WhatsApp" : "Criar regra e enviar via WhatsApp"}
-                &quot;.
+                &quot;. Promoção não tem alvo calculado automaticamente — escolha à mão.
               </p>
               <div className="relative">
                 <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
@@ -509,11 +576,13 @@ export function AutomationFormDialog({
             )}
           </div>
 
+          {error && <p className="text-destructive text-sm">{error}</p>}
+
           <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
             <Button type="submit" variant="outline" disabled={isSubmitting || !name}>
               {isEditing ? "Salvar alterações" : "Criar regra"}
             </Button>
-            {actionChannel === "whatsapp" && (
+            {actionChannel === "whatsapp" && triggerType === "promocao" && (
               <Button
                 type="button"
                 disabled={isSubmitting || !name || !actionMessage || targetPatientIds.length === 0}

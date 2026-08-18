@@ -225,10 +225,10 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-automacoes`
 - **Objetivo**: implementar a execução real das regras de automação e conectar à UI construída no M9.
 - **Entregas**:
-  - [ ] Schema Prisma de regras de automação
-  - [ ] Motor de execução (job/cron) que avalia gatilhos e dispara ações
-  - [ ] Conectar UI de automações (M9) aos dados reais
-- **Commit final**: `feat(backend): motor de automações real`
+  - [x] Schema Prisma de regras de automação (`AutomationRule` com trigger/condição/ação em JSON) e log de execução (`AutomationLog`, auditoria imutável)
+  - [x] Motor de avaliação real sob demanda — calcula quem/o que bate com cada gatilho agora (consulta há N dias, aniversariantes, orçamento aprovado, consulta confirmada em N horas, estoque abaixo do mínimo), sem cron; WhatsApp continua manual (sem API), e-mail dispara de verdade via Resend, notificação interna vira registro em log
+  - [x] Conectar UI de automações (M9) aos dados reais — módulo "automacoes" adicionado à matriz de permissões (não existia)
+- **Commit final**: `feat(backend): motor de automações real` ✅ (branch `feature/backend-automacoes`, mergeada em `main`)
 
 ### M19. Notificações + chat interno
 
