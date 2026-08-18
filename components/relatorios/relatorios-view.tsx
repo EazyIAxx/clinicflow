@@ -5,10 +5,9 @@ import { ExportMenu } from "@/components/relatorios/export-menu";
 import { MovementsChart } from "@/components/relatorios/movements-chart";
 import { StatusChart } from "@/components/relatorios/status-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Appointment } from "@/lib/mock-agenda";
-import type { PatientDocument } from "@/lib/mock-documentos";
-import type { StockItem, StockMovement } from "@/lib/mock-estoque";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Appointment, Professional } from "@/lib/agenda-types";
+import type { StockItem, StockMovement } from "@/lib/estoque-types";
+import type { Patient, PatientDocument } from "@/lib/patient-types";
 import {
   getAppointmentStatusBreakdown,
   getMovementsTrend,
@@ -21,6 +20,7 @@ export function RelatoriosView({
   items,
   movements,
   patients,
+  professionals,
   documents,
   referenceDate,
 }: {
@@ -28,6 +28,7 @@ export function RelatoriosView({
   items: StockItem[];
   movements: StockMovement[];
   patients: Patient[];
+  professionals: Professional[];
   documents: PatientDocument[];
   referenceDate: Date;
 }) {
@@ -42,7 +43,15 @@ export function RelatoriosView({
         <p className="text-muted-foreground text-sm">
           Métricas consolidadas de agenda, estoque e prontuário.
         </p>
-        <ExportMenu appointments={appointments} items={items} patients={patients} />
+        <ExportMenu
+          appointments={appointments}
+          items={items}
+          patients={patients}
+          professionals={professionals}
+          stats={stats}
+          statusBreakdown={statusBreakdown}
+          categoryBreakdown={categoryBreakdown}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">

@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { statusMeta } from "@/lib/agenda-status";
 import { formatFullDate } from "@/lib/agenda-time";
-import { getTodayAgendaSummary } from "@/lib/mock-dashboard";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
+import type { Appointment, Professional } from "@/lib/agenda-types";
+import { getTodayAgendaSummary } from "@/lib/dashboard-metrics";
 
 const MAX_VISIBLE = 6;
 

@@ -8,11 +8,9 @@ import {
 import { ptBR } from "date-fns/locale";
 
 import type { AppointmentStatus } from "@/lib/agenda-status";
-import type { Appointment } from "@/lib/mock-agenda";
-import type { PatientDocument } from "@/lib/mock-documentos";
-import type { Patient } from "@/lib/mock-pacientes";
-import type { StockCategory, StockItem, StockMovement } from "@/lib/mock-estoque";
-import { categoryLabels } from "@/lib/mock-estoque";
+import type { Appointment } from "@/lib/agenda-types";
+import { categoryLabels, type StockCategory, type StockItem, type StockMovement } from "@/lib/estoque-types";
+import type { Patient, PatientDocument } from "@/lib/patient-types";
 import { getStockFlags } from "@/lib/stock-status";
 
 const parseDate = (date: string) => new Date(`${date}T00:00:00`);

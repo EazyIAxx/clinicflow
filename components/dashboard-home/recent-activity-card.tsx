@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatRelativeDate, type ActivityItem } from "@/lib/mock-dashboard";
+import { formatRelativeDate, type ActivityItem } from "@/lib/dashboard-metrics";
 
 export function RecentActivityCard({
   activity,

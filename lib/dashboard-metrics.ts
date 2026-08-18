@@ -2,11 +2,11 @@ import { differenceInCalendarDays } from "date-fns";
 import { Handshake, Package, Receipt, Users, type LucideIcon } from "lucide-react";
 
 import { formatDateKey } from "@/lib/agenda-time";
-import type { Appointment } from "@/lib/mock-agenda";
-import { isLeadStale, type Interaction, type Lead } from "@/lib/mock-leads";
-import type { StockItem, StockMovement } from "@/lib/mock-estoque";
-import type { Budget } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Appointment } from "@/lib/agenda-types";
+import { isLeadStale, type Interaction, type Lead } from "@/lib/crm-types";
+import type { StockItem, StockMovement } from "@/lib/estoque-types";
+import type { Budget } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 import { getStockFlags } from "@/lib/stock-status";
 
 /**

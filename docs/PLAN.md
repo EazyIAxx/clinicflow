@@ -193,11 +193,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/backend-relatorios`
 - **Objetivo**: implementar relatórios reais e exportação, conectando à UI construída no M5. Também alimenta o dashboard operacional do M10, que agrega dados dos demais módulos já com backend.
 - **Entregas**:
-  - [ ] Queries agregadas para métricas de agenda/estoque
-  - [ ] Exportação de relatórios (CSV/PDF)
-  - [ ] Conectar dashboard de relatórios (M5) aos dados reais
-  - [ ] Conectar dashboard operacional (M10) aos dados reais
-- **Commit final**: `feat(backend): relatórios reais e exportação de dados`
+  - [x] Queries agregadas para métricas de agenda/estoque — sem schema novo, `lib/relatorios.ts` e `lib/dashboard-metrics.ts` (ex-`mock-dashboard.ts`, era lógica real com nome de mock) já eram funções puras, só trocaram o tipo de dado mockado pelo real
+  - [x] Exportação de relatórios (CSV/PDF) — CSV client-side já existia; PDF novo via `@react-pdf/renderer`, gerado no navegador
+  - [x] Conectar dashboard de relatórios (M5) aos dados reais — página restrita a Gestor/Admin, igual ao financeiro (a matriz de permissões já previa isso, só não era aplicado)
+  - [x] Conectar dashboard operacional (M10) aos dados reais
+- **Commit final**: `feat(backend): relatórios reais e exportação de dados` ✅ (branch `feature/backend-relatorios`, mergeada em `main`)
 
 ### M16. Backend de CRM
 
