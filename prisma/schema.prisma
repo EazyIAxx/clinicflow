@@ -24,27 +24,29 @@ enum UserStatus {
 }
 
 model Clinic {
-  id             String          @id @default(uuid()) @db.Uuid
-  name           String
-  cnpj           String?
-  phone          String?
-  address        String?
-  hours          String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  users          User[]
-  professionals  Professional[]
-  appointments   Appointment[]
-  stockItems     StockItem[]
-  stockMovements StockMovement[]
-  patients       Patient[]
-  documents      Document[]
-  leads          Lead[]
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String
+  cnpj             String?
+  phone            String?
+  address          String?
+  hours            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  users            User[]
+  professionals    Professional[]
+  appointments     Appointment[]
+  stockItems       StockItem[]
+  stockMovements   StockMovement[]
+  patients         Patient[]
+  documents        Document[]
+  leads            Lead[]
   leadInteractions LeadInteraction[]
-  procedures     Procedure[]
-  budgets        Budget[]
-  charges        Charge[]
-  expenses       Expense[]
+  procedures       Procedure[]
+  budgets          Budget[]
+  charges          Charge[]
+  expenses         Expense[]
+  automationRules  AutomationRule[]
+  automationLogs   AutomationLog[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -186,31 +188,32 @@ enum PatientStatus {
 }
 
 model Patient {
-  id                         String        @id @default(uuid()) @db.Uuid
-  clinicId                   String        @db.Uuid
-  clinic                     Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  name                       String
+  id                        String          @id @default(uuid()) @db.Uuid
+  clinicId                  String          @db.Uuid
+  clinic                    Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name                      String
   /// yyyy-MM-dd
-  birthDate                  String
-  phone                      String
-  email                      String?
-  cpf                        String?
-  responsibleProfessionalId  String?       @db.Uuid
-  responsibleProfessional    Professional? @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
-  status                     PatientStatus @default(ativo)
-  notes                      String?
+  birthDate                 String
+  phone                     String
+  email                     String?
+  cpf                       String?
+  responsibleProfessionalId String?         @db.Uuid
+  responsibleProfessional   Professional?   @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
+  status                    PatientStatus   @default(ativo)
+  notes                     String?
   /// yyyy-MM-dd
-  lastVisitAt                String?
-  healthInsuranceProvider    String?
-  healthInsurancePlan        String?
-  healthInsuranceCardNumber  String?
+  lastVisitAt               String?
+  healthInsuranceProvider   String?
+  healthInsurancePlan       String?
+  healthInsuranceCardNumber String?
   /// yyyy-MM-dd
-  healthInsuranceValidUntil  String?
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-  documents                  Document[]
-  budgets                    Budget[]
-  charges                    Charge[]
+  healthInsuranceValidUntil String?
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  documents                 Document[]
+  budgets                   Budget[]
+  charges                   Charge[]
+  automationLogs            AutomationLog[]
 
   @@index([clinicId])
   @@index([responsibleProfessionalId])
@@ -267,40 +270,40 @@ enum InteractionType {
 }
 
 model Lead {
-  id                         String            @id @default(uuid()) @db.Uuid
-  clinicId                   String            @db.Uuid
-  clinic                     Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  name                       String
-  phone                      String
-  email                      String?
-  origin                     LeadOrigin
-  interest                   String
-  responsibleProfessionalId  String?           @db.Uuid
-  responsibleProfessional    Professional?     @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
-  stage                      LeadStage         @default(novo)
-  notes                      String?
+  id                        String            @id @default(uuid()) @db.Uuid
+  clinicId                  String            @db.Uuid
+  clinic                    Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name                      String
+  phone                     String
+  email                     String?
+  origin                    LeadOrigin
+  interest                  String
+  responsibleProfessionalId String?           @db.Uuid
+  responsibleProfessional   Professional?     @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
+  stage                     LeadStage         @default(novo)
+  notes                     String?
   /// Preenchido quando o lead vira paciente de verdade (convertLeadToPatient).
-  convertedPatientId         String?           @db.Uuid
-  createdAt                  DateTime          @default(now())
-  updatedAt                  DateTime          @updatedAt
-  interactions                LeadInteraction[]
+  convertedPatientId        String?           @db.Uuid
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  interactions              LeadInteraction[]
 
   @@index([clinicId])
   @@index([responsibleProfessionalId])
 }
 
 model LeadInteraction {
-  id        String           @id @default(uuid()) @db.Uuid
-  clinicId  String           @db.Uuid
-  clinic    Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  leadId    String           @db.Uuid
-  lead      Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id        String          @id @default(uuid()) @db.Uuid
+  clinicId  String          @db.Uuid
+  clinic    Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  leadId    String          @db.Uuid
+  lead      Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
   type      InteractionType
   content   String
   /// yyyy-MM-dd
   date      String
   author    String
-  createdAt DateTime         @default(now())
+  createdAt DateTime        @default(now())
 
   @@index([clinicId, leadId])
 }
@@ -329,22 +332,22 @@ enum BudgetStatus {
 }
 
 model Budget {
-  id                         String        @id @default(uuid()) @db.Uuid
-  clinicId                   String        @db.Uuid
-  clinic                     Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  patientId                  String        @db.Uuid
-  patient                    Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  responsibleProfessionalId  String?       @db.Uuid
-  responsibleProfessional    Professional? @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
-  discountPercent            Decimal       @default(0) @db.Decimal(5, 2)
+  id                        String        @id @default(uuid()) @db.Uuid
+  clinicId                  String        @db.Uuid
+  clinic                    Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patientId                 String        @db.Uuid
+  patient                   Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  responsibleProfessionalId String?       @db.Uuid
+  responsibleProfessional   Professional? @relation(fields: [responsibleProfessionalId], references: [id], onDelete: SetNull)
+  discountPercent           Decimal       @default(0) @db.Decimal(5, 2)
   /// yyyy-MM-dd
-  validUntil                 String
-  status                     BudgetStatus  @default(rascunho)
-  notes                      String?
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-  items                      BudgetItem[]
-  charges                    Charge[]
+  validUntil                String
+  status                    BudgetStatus  @default(rascunho)
+  notes                     String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  items                     BudgetItem[]
+  charges                   Charge[]
 
   @@index([clinicId])
   @@index([patientId])
@@ -444,4 +447,60 @@ model Expense {
   updatedAt   DateTime           @updatedAt
 
   @@index([clinicId])
+}
+
+enum AutomationStatus {
+  ativa
+  pausada
+}
+
+enum AutomationChannel {
+  whatsapp
+  email
+  notificacao_interna
+}
+
+/// `trigger`/`condition`/`action` guardados como JSON — mesmo formato de união
+/// discriminada do mock (lib/mock-automacoes.ts), sem tabela por tipo de
+/// gatilho. `targetPatientIds` é a lista escolhida à mão (usada pelo gatilho
+/// "promoção"); os demais gatilhos calculam o alvo real em tempo de consulta
+/// (lib/automacao-engine.ts), não guardado no banco.
+model AutomationRule {
+  id               String           @id @default(uuid()) @db.Uuid
+  clinicId         String           @db.Uuid
+  clinic           Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  trigger          Json
+  condition        Json?
+  action           Json
+  status           AutomationStatus @default(ativa)
+  targetPatientIds String[]         @default([])
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  lastTriggeredAt  DateTime?
+  logs             AutomationLog[]
+
+  @@index([clinicId])
+}
+
+/// Registro imutável de cada disparo real (WhatsApp aberto, e-mail enviado ou
+/// notificação interna registrada) — não é reescrito nem apagado, é o
+/// histórico de auditoria de execução das regras.
+model AutomationLog {
+  id          String            @id @default(uuid()) @db.Uuid
+  clinicId    String            @db.Uuid
+  clinic      Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  ruleId      String            @db.Uuid
+  rule        AutomationRule    @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  patientId   String?           @db.Uuid
+  patient     Patient?          @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  /// Texto livre pra alvo sem paciente (ex.: nome do item de estoque).
+  targetLabel String?
+  channel     AutomationChannel
+  message     String
+  createdAt   DateTime          @default(now())
+
+  @@index([clinicId, ruleId])
+  @@index([patientId])
 }

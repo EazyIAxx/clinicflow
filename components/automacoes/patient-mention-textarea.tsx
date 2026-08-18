@@ -5,8 +5,8 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } fro
 import { createPortal } from "react-dom";
 
 import { Textarea } from "@/components/ui/textarea";
+import type { Patient } from "@/lib/patient-types";
 import { cn } from "@/lib/utils";
-import type { Patient } from "@/lib/mock-pacientes";
 
 const MAX_SUGGESTIONS = 6;
 

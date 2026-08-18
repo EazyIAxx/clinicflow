@@ -9,6 +9,7 @@ export type PermissionModule =
   | "crm"
   | "orcamentos"
   | "financeiro"
+  | "automacoes"
   | "relatorios"
   | "configuracoes";
 
@@ -21,6 +22,7 @@ export const permissionModuleLabels: Record<PermissionModule, string> = {
   crm: "CRM",
   orcamentos: "Orçamentos",
   financeiro: "Financeiro",
+  automacoes: "Automações",
   relatorios: "Relatórios",
   configuracoes: "Configurações",
 };
@@ -66,6 +68,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     crm: "gerenciar",
     orcamentos: "gerenciar",
     financeiro: "nenhum",
+    automacoes: "gerenciar",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -76,6 +79,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     crm: "gerenciar",
     orcamentos: "visualizar",
     financeiro: "nenhum",
+    automacoes: "visualizar",
     relatorios: "nenhum",
     configuracoes: "nenhum",
   },
@@ -86,6 +90,7 @@ export const permissionsMatrix: Record<UserRole, Record<PermissionModule, Access
     crm: "gerenciar",
     orcamentos: "gerenciar",
     financeiro: "gerenciar",
+    automacoes: "gerenciar",
     relatorios: "gerenciar",
     configuracoes: "gerenciar",
   },
