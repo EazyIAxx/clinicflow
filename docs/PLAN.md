@@ -235,11 +235,11 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
 - **Branch**: `feature/notificacoes-chat`
 - **Objetivo**: cobrir os requisitos funcionais de notificações e chat/mensagens internas da equipe.
 - **Entregas**:
-  - [ ] Sistema de notificações in-app (lembretes de consulta, alertas de estoque)
-  - [ ] Job/cron de lembretes automáticos
-  - [ ] E-mails de confirmação/lembrete de consulta via Resend
-  - [ ] Chat/mensagens internas entre membros da equipe
-- **Commit final**: `feat: notificações e chat interno`
+  - [x] Sistema de notificações in-app (lembretes de consulta, alertas de estoque) — sino na topbar, com polling
+  - [x] Job/cron de lembretes automáticos — rota `app/api/lembretes` protegida por segredo (`CRON_SECRET`), disparada manualmente por enquanto; sem Vercel Cron configurado ainda (decisão consciente, fica pro deploy)
+  - [x] E-mails de confirmação/lembrete de consulta via Resend
+  - [x] Chat/mensagens internas entre membros da equipe — mensagens diretas (1-para-1), sem canais, com polling
+- **Commit final**: `feat: notificações e chat interno` ✅ (branch `feature/notificacoes-chat`, mergeada em `main`)
 
 ---
 
