@@ -115,6 +115,7 @@ Cada milestone parte de `main`, tem sua própria branch, e deve ser testado manu
   - [x] Despesas gerais da clínica (cadastro simples)
   - [x] Dashboard financeiro (faturamento diário/semanal/mensal, valor líquido, despesas, inadimplência)
 - **Commit final**: `feat(ui): interface financeira` ✅ (branch `feature/ui-financeiro`, PR #7, mergeada em `main`)
+- **Pós-M19**: módulo reativado no menu (estava oculto a pedido do usuário) e ganhou importação de despesas via CSV (branch `feature/financeiro-import-csv`).
 
 ### M9. UI de automações
 

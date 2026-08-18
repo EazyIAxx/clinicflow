@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import type { ChargeStatus, ExpenseStatus } from "@/lib/finance-status";
 import {
   categoryToPrisma,
+  expenseCategories,
   mapCharge,
   mapExpense,
   type Charge,
@@ -207,4 +208,67 @@ export async function markExpensePaid(
 
   revalidatePath("/financeiro");
   return { data: mapExpense(row) };
+}
+
+export type ExpenseCsvRow = {
+  description: string;
+  category: ExpenseCategory;
+  amount: number;
+  dueDate: string; // yyyy-MM-dd
+  status: ExpenseStatus;
+};
+
+export type ImportExpensesResult = {
+  created: Expense[];
+  errors: { row: number; message: string }[];
+};
+
+/** Importação em massa de despesas via CSV — a linha já vem validada/normalizada pelo cliente. */
+export async function importExpensesCsv(
+  rows: ExpenseCsvRow[],
+): Promise<FinanceiroActionState<ImportExpensesResult>> {
+  const currentUser = await requireFinanceiroManager();
+  if (!currentUser) return { error: "Você não tem permissão para importar despesas." };
+  if (rows.length === 0) return { error: "Nenhuma linha para importar." };
+
+  const errors: ImportExpensesResult["errors"] = [];
+  const valid: ExpenseCsvRow[] = [];
+
+  rows.forEach((row, index) => {
+    if (!row.description.trim()) {
+      errors.push({ row: index + 1, message: "Descrição vazia." });
+      return;
+    }
+    if (!expenseCategories.includes(row.category)) {
+      errors.push({ row: index + 1, message: `Categoria inválida: "${row.category}".` });
+      return;
+    }
+    if (!Number.isFinite(row.amount) || row.amount <= 0) {
+      errors.push({ row: index + 1, message: "Valor inválido." });
+      return;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.dueDate)) {
+      errors.push({ row: index + 1, message: "Data de vencimento inválida." });
+      return;
+    }
+    valid.push(row);
+  });
+
+  let created: Expense[] = [];
+  if (valid.length > 0) {
+    const createdRows = await prisma.expense.createManyAndReturn({
+      data: valid.map((row) => ({
+        clinicId: currentUser.clinicId,
+        description: row.description.trim(),
+        category: categoryToPrisma(row.category),
+        amount: row.amount,
+        dueDate: row.dueDate,
+        status: row.status,
+      })),
+    });
+    created = createdRows.map(mapExpense);
+  }
+
+  revalidatePath("/financeiro");
+  return { data: { created, errors } };
 }
