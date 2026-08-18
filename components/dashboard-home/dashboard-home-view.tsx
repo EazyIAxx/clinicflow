@@ -2,12 +2,12 @@ import { AgendaSummaryCard } from "@/components/dashboard-home/agenda-summary-ca
 import { ModulePendenciesCard } from "@/components/dashboard-home/module-pendencies-card";
 import { QuickActions } from "@/components/dashboard-home/quick-actions";
 import { RecentActivityCard } from "@/components/dashboard-home/recent-activity-card";
-import { getModulePendencies, getRecentActivity } from "@/lib/mock-dashboard";
-import type { Appointment, Professional } from "@/lib/mock-agenda";
-import type { StockItem, StockMovement } from "@/lib/mock-estoque";
-import type { Interaction, Lead } from "@/lib/mock-leads";
-import type { Budget } from "@/lib/mock-orcamentos";
-import type { Patient } from "@/lib/mock-pacientes";
+import type { Appointment, Professional } from "@/lib/agenda-types";
+import type { Interaction, Lead } from "@/lib/crm-types";
+import { getModulePendencies, getRecentActivity } from "@/lib/dashboard-metrics";
+import type { StockItem, StockMovement } from "@/lib/estoque-types";
+import type { Budget } from "@/lib/orcamentos-types";
+import type { Patient } from "@/lib/patient-types";
 
 export function DashboardHomeView({
   appointments,
