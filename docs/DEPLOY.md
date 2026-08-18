@@ -6,6 +6,8 @@ Runbook do M21. Cobre o que já está pronto no repositório e o que precisa de 
 
 Lista exata das variáveis que o código realmente usa hoje (verificado via `grep -r process.env`). Preencher direto no painel da Vercel (Project Settings → Environment Variables), nunca em arquivo versionado.
 
+Preencher pros ambientes **Production e Preview** (a Vercel deixa escolher por variável) — o primeiro deploy falhou justamente porque `RESEND_API_KEY` não estava disponível no ambiente que builda a PR. O `lib/resend.ts` já foi corrigido pra não derrubar o build inteiro se uma variável faltar (inicialização preguiçosa — só cria o client de verdade no primeiro uso em runtime), mas a rota de e-mail continua exigindo o valor real pra funcionar de fato.
+
 | Variável                       | Onde usar          | Observação                                                                 |
 | ------------------------------- | ------------------ | --------------------------------------------------------------------------- |
 | `DATABASE_URL`                  | Produção            | Connection string do Supabase Postgres (pooler, porta 5432/6543)            |
