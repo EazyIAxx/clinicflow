@@ -12,6 +12,7 @@ import { ExpenseFormDialog } from "@/components/financeiro/expense-form-dialog";
 import { ExpensesByCategoryChart } from "@/components/financeiro/expenses-by-category-chart";
 import { ExpensesTable } from "@/components/financeiro/expenses-table";
 import { ExpensesToolbar } from "@/components/financeiro/expenses-toolbar";
+import { ImportExpensesDialog } from "@/components/financeiro/import-expenses-dialog";
 import { PatientPaymentsChart } from "@/components/financeiro/patient-payments-chart";
 import { PaymentDialog } from "@/components/financeiro/payment-dialog";
 import {
@@ -104,6 +105,7 @@ export function FinanceiroView({
   const [expenseFormKey, setExpenseFormKey] = useState(0);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const patientsById = useMemo(
     () => Object.fromEntries(patients.map((patient) => [patient.id, patient])),
@@ -218,6 +220,11 @@ export function FinanceiroView({
       await markExpensePaid(expense.id, paidAt);
       router.refresh();
     });
+  }
+
+  function handleExpensesImported(created: Expense[]) {
+    setExpenses((prev) => [...prev, ...created]);
+    router.refresh();
   }
 
   function handleConfirmDeleteExpense() {
@@ -391,6 +398,7 @@ export function FinanceiroView({
             statusFilter={expenseStatusFilter}
             onStatusFilterChange={setExpenseStatusFilter}
             onNewExpense={openNewExpenseDialog}
+            onImportCsv={() => setIsImportOpen(true)}
           />
           <ExpensesTable
             expenses={filteredExpenses}
@@ -426,6 +434,12 @@ export function FinanceiroView({
         onOpenChange={setIsExpenseFormOpen}
         expense={editingExpense}
         onSubmit={handleExpenseSubmit}
+      />
+
+      <ImportExpensesDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onImported={handleExpensesImported}
       />
 
       <AlertDialog

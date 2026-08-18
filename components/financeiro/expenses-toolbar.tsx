@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,14 @@ export function ExpensesToolbar({
   statusFilter,
   onStatusFilterChange,
   onNewExpense,
+  onImportCsv,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
   statusFilter: ExpenseDisplayStatus | "todos";
   onStatusFilterChange: (value: ExpenseDisplayStatus | "todos") => void;
   onNewExpense: () => void;
+  onImportCsv: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -61,10 +63,16 @@ export function ExpensesToolbar({
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={onNewExpense}>
-        <Plus />
-        Nova despesa
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" onClick={onImportCsv}>
+          <Upload />
+          Importar CSV
+        </Button>
+        <Button onClick={onNewExpense}>
+          <Plus />
+          Nova despesa
+        </Button>
+      </div>
     </div>
   );
 }
