@@ -49,6 +49,7 @@ model Clinic {
   automationLogs   AutomationLog[]
   notifications    Notification[]
   conversations    Conversation[]
+  boardNotes       BoardNote[]
 }
 
 /// id igual ao id do usuário em auth.users (Supabase) — atribuído no cadastro,
@@ -76,6 +77,7 @@ model User {
   conversationsAsUserA Conversation[] @relation("ConversationsAsUserA")
   conversationsAsUserB Conversation[] @relation("ConversationsAsUserB")
   messagesSent         Message[]
+  boardNotes           BoardNote[]
 }
 
 enum AppointmentStatus {
@@ -564,4 +566,18 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+}
+
+/// Mural geral da clínica — recado visível pra toda a equipe, sem destinatário
+/// específico (complementa as mensagens diretas, que já usam Conversation/Message).
+model BoardNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  clinicId  String   @db.Uuid
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  authorId  String   @db.Uuid
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([clinicId, createdAt])
 }
