@@ -3,9 +3,12 @@
 import { MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { BoardView } from "@/components/mensagens/board-view";
 import { ChatThread } from "@/components/mensagens/chat-thread";
 import { ConversationsList } from "@/components/mensagens/conversations-list";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getOrCreateConversation, listConversations } from "@/lib/actions/chat";
+import type { BoardNote } from "@/lib/board-types";
 import type { ChatConversation, TeamMember } from "@/lib/chat-types";
 
 const POLL_INTERVAL_MS = 15000;
@@ -14,10 +17,12 @@ export function MensagensView({
   currentUserId,
   initialConversations,
   teamMembers,
+  initialBoardNotes,
 }: {
   currentUserId: string;
   initialConversations: ChatConversation[];
   teamMembers: TeamMember[];
+  initialBoardNotes: BoardNote[];
 }) {
   const [conversations, setConversations] = useState<ChatConversation[]>(initialConversations);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
@@ -65,34 +70,45 @@ export function MensagensView({
   );
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
-      <div className="w-full max-w-xs shrink-0">
-        <ConversationsList
-          conversations={conversations}
-          teamMembers={teamMembers}
-          selectedConversationId={selectedConversationId}
-          onSelectConversation={setSelectedConversationId}
-          onSelectTeamMember={handleSelectTeamMember}
-        />
-      </div>
+    <Tabs defaultValue="mural" className="flex h-[calc(100vh-8rem)] flex-col gap-4">
+      <TabsList className="self-start">
+        <TabsTrigger value="mural">Mural</TabsTrigger>
+        <TabsTrigger value="diretas">Diretas</TabsTrigger>
+      </TabsList>
 
-      <div className="flex-1">
-        {selectedConversation ? (
-          <ChatThread
-            key={selectedConversation.id}
-            conversationId={selectedConversation.id}
-            currentUserId={currentUserId}
-            otherUserName={selectedConversation.otherUserName}
-            onMessageSent={handleMessageSent}
-            onThreadOpened={() => handleThreadOpened(selectedConversation.id)}
+      <TabsContent value="mural" className="min-h-0 flex-1">
+        <BoardView currentUserId={currentUserId} initialNotes={initialBoardNotes} />
+      </TabsContent>
+
+      <TabsContent value="diretas" className="flex min-h-0 flex-1 gap-4">
+        <div className="w-full max-w-xs shrink-0">
+          <ConversationsList
+            conversations={conversations}
+            teamMembers={teamMembers}
+            selectedConversationId={selectedConversationId}
+            onSelectConversation={setSelectedConversationId}
+            onSelectTeamMember={handleSelectTeamMember}
           />
-        ) : (
-          <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed">
-            <MessageSquare className="size-8" />
-            <p className="text-sm">Selecione alguém da equipe para começar uma conversa.</p>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+
+        <div className="flex-1">
+          {selectedConversation ? (
+            <ChatThread
+              key={selectedConversation.id}
+              conversationId={selectedConversation.id}
+              currentUserId={currentUserId}
+              otherUserName={selectedConversation.otherUserName}
+              onMessageSent={handleMessageSent}
+              onThreadOpened={() => handleThreadOpened(selectedConversation.id)}
+            />
+          ) : (
+            <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed">
+              <MessageSquare className="size-8" />
+              <p className="text-sm">Selecione alguém da equipe para começar uma conversa.</p>
+            </div>
+          )}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
