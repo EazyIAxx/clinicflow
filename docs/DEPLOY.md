@@ -10,7 +10,7 @@ Preencher pros ambientes **Production e Preview** (a Vercel deixa escolher por v
 
 | Variável                       | Onde usar          | Observação                                                                 |
 | ------------------------------- | ------------------ | --------------------------------------------------------------------------- |
-| `DATABASE_URL`                  | Produção            | Connection string do Supabase Postgres (pooler, porta 5432/6543)            |
+| `DATABASE_URL`                  | Produção            | Pooler do Supabase em **modo Transaction, porta 6543**, com `?pgbouncer=true` no final — ver nota abaixo |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Produção            | URL do projeto Supabase                                                     |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Produção            | Chave pública (anon) — protegida por RLS                                    |
 | `SUPABASE_SERVICE_ROLE_KEY`     | Produção            | Chave admin — só usada server-side (Storage, criação de usuário em convite) |
@@ -19,6 +19,24 @@ Preencher pros ambientes **Production e Preview** (a Vercel deixa escolher por v
 | `CRON_SECRET`                   | Produção            | Gerar um valor novo e forte pra produção (não reaproveitar o de dev)        |
 
 Variáveis do `.env.example` que **não têm código nenhum usando ainda** (M20 — WhatsApp + agente de IA — foi propositalmente pulado): `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `ANTHROPIC_API_KEY`. Não preencher agora — só quando o M20 for retomado.
+
+### Modo do pooler do Supabase (Session vs Transaction)
+
+O primeiro deploy real caiu com `PrismaClientKnownRequestError: Invalid 'prisma.user.findUnique()' invocation: Database error` de forma intermitente em `/dashboard` — clássico esgotamento de pool de conexões. A causa: `DATABASE_URL` apontava pro pooler do Supabase na **porta 5432 (modo Session)**, que mantém conexões persistentes e tem um limite baixo — cada instância serverless da Vercel abre a própria conexão, e sob qualquer tráfego concorrente estoura o limite rápido.
+
+A [documentação oficial do Supabase para Prisma em serverless](https://supabase.com/docs/guides/database/prisma) recomenda:
+
+- **Em produção/runtime (Vercel)**: `DATABASE_URL` deve usar a **porta 6543 (modo Transaction)** do pooler, com `?pgbouncer=true` no final da string.
+- **Localmente / pra rodar migrations**: a porta 5432 (modo Session) continua funcionando normalmente — não há pressão de conexões concorrentes com um único desenvolvedor rodando `prisma migrate deploy`.
+
+Prisma 7 removeu o suporte a `directUrl` separado no `prisma.config.ts` (só existe `url`), então não dá pra configurar isso automaticamente por ambiente — é uma troca manual do valor de `DATABASE_URL` no painel da Vercel, mudando só a porta e adicionando o parâmetro:
+
+```diff
+- postgresql://postgres.PROJETO:SENHA@HOST.pooler.supabase.com:5432/postgres
++ postgresql://postgres.PROJETO:SENHA@HOST.pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+O `.env` local continua na porta 5432 sem problema (usado tanto pro `next dev` quanto pras migrations).
 
 ## 2. Conectar a Vercel
 
