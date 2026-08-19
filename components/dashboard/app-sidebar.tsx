@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -108,12 +109,14 @@ export function AppSidebar({ user }: { user: Awaited<ReturnType<typeof getCurren
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{user?.name ?? "..."}</span>
-                    <span className="text-muted-foreground text-xs">{user?.email ?? ""}</span>
-                  </div>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{user?.name ?? "..."}</span>
+                      <span className="text-muted-foreground text-xs">{user?.email ?? ""}</span>
+                    </div>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/configuracoes" />} onClick={closeOnMobile}>
                   <Settings />
