@@ -46,3 +46,11 @@ next-env.d.ts
 # python (scripts vendorizados em skills)
 __pycache__/
 *.pyc
+
+# skills de ferramentas de IA (Claude Code, Windsurf) instaladas localmente —
+# não é código da aplicação, e os scripts .py vendorizados aqui já causaram
+# um bug real de detecção de framework na Vercel (ver vercel.json)
+.claude/skills/
+.claude/scheduled_tasks.lock
+.agents/skills/
+.windsurf/skills/
